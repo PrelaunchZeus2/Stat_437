@@ -1,1 +1,0 @@
-#Lecture 1b Visualization
