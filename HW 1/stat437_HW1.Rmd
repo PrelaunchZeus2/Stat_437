@@ -48,8 +48,9 @@ You are interested in looking into the average `arr_delay` for 6 different `mont
 ```{r, filter data}
 library(dplyr)
 library(nycflights13)
+flights
 flights1 = flights %>% filter(month %in% c(12, 1, 2, 6, 7, 8), carrier %in% c("UA", "AA", "DL"), distance > 700) #extract observations
-na.omit(flights1)
+flights1 = na.omit(flights1)
 ```
 
 The following tasks and questions are based on the extracted observations.
@@ -64,7 +65,7 @@ flights1 = flights1 %>% dplyr::mutate_at('month', as.factor)
 arr_delay.density_plot = ggplot(flights1, aes(x = arr_delay, color = month)) + geom_density(linetype = 'dashed') + theme_bw()
 arr_delay.density_plot
 ```
-Based on this density plot, month 12 appears to have a slightly higher occurrence of arrival delays compared to the other months. This is inferred by examining the peak (or mode) which is slightly greater 0 on the x axis. The other months all have similar modes centered much closer to 0 although the frequency (or number of values in each mode) differs between months. As for the average, there is no precice information on the mean arrival delay that can be gathered from a density plot.
+Based on this density plot, month 12 appears to have a slightly higher occurrence of arrival delays compared to the other months. This is inferred by examining the peak (or mode) which is slightly greater 0 on the x axis. The other months all have similar modes centered much closer to 0 although the frequency (or number of values in each mode) differs between months. As for the average, there is no precise information on the mean arrival delay that can be gathered from a density plot.
 
 
 (1.b) In a single plot, create a boxplot for `arr_delay` for each of the 3 carriers. What can you say about the average `arr_delay` for the 3 carriers?
@@ -112,7 +113,7 @@ arr_delay.summary_stats_plot
 
 # Problem 2
 
-Please refer to the data set `mpg` that is available from the `ggplot2` package. Plot `displ` against `hwy` with faceting by `drv` and `cyl`, `color` disgnated by `class`, and `shape` by `trans`. This illustrates visualization with 4 factors.
+Please refer to the data set `mpg` that is available from the `ggplot2` package. Plot `displ` against `hwy` with faceting by `drv` and `cyl`, `color` deisgnated by `class`, and `shape` by `trans`. This illustrates visualization with 4 factors.
 
 ```{r, 2}
 mpg1 = na.omit(mpg)
