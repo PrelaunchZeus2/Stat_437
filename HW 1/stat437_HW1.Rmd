@@ -10,7 +10,7 @@ header-includes:
    - \usepackage{natbib}
 output:
   pdf_document: default
-fontsize: 12pt
+fontsize: 11pt
 ---
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -48,8 +48,8 @@ You are interested in looking into the average `arr_delay` for 6 different `mont
 ```{r, filter data}
 library(dplyr)
 library(nycflights13)
-flights1 = flights %>% filter(month %in% c(12, 1, 2, 6, 7, 8), carrier %in% c("UA", "AA", "DL"), distance > 700)
-flights1 = na.omit(flights1)
+flights1 = flights %>% filter(month %in% c(12, 1, 2, 6, 7, 8), carrier %in% c("UA", "AA", "DL"), distance > 700) #extract observations
+na.omit(flights1)
 ```
 
 The following tasks and questions are based on the extracted observations.
@@ -61,10 +61,10 @@ library(ggplot2)
 
 flights1 = flights1 %>% dplyr::mutate_at('month', as.factor)
 
-arr_delay.density_plot = ggplot(flights1, aes(x = arr_delay, color = month, na.rm = TRUE)) + geom_density(linetype = 'dashed') + theme_bw()
+arr_delay.density_plot = ggplot(flights1, aes(x = arr_delay, color = month)) + geom_density(linetype = 'dashed') + theme_bw()
 arr_delay.density_plot
 ```
-Based on this density plot, month 12 appears to have a slightly higher occurrence of arrival delays compared to the other months. This is inferred by examining the peak (or mode) which is slightly greater 0 on the x axis. The other months all have similar modes centered much closer to 0 although the frequency (or number of values in each mode) differs between months. 
+Based on this density plot, month 12 appears to have a slightly higher occurrence of arrival delays compared to the other months. This is inferred by examining the peak (or mode) which is slightly greater 0 on the x axis. The other months all have similar modes centered much closer to 0 although the frequency (or number of values in each mode) differs between months. As for the average, there is no precice information on the mean arrival delay that can be gathered from a density plot.
 
 
 (1.b) In a single plot, create a boxplot for `arr_delay` for each of the 3 carriers. What can you say about the average `arr_delay` for the 3 carriers?
@@ -105,10 +105,9 @@ summary_stats = flights1 %>% group_by(month, carrier) %>% summarise(mean_arr_del
 
 summary_stats
 
-arr_delay.summary_stats_plot = ggplot(data = summary_stats, aes(x = month, y = mean_arr_delay, shape = carrier, color = mean_distance)) + geom_point(size = 3) + geom_text(aes(label = carrier), hjust = 0.5, vjust = -0.5, size = 3) + scale_color_gradient(low = "green", high = "red")
+arr_delay.summary_stats_plot = ggplot(data = summary_stats, aes(x = month, y = mean_arr_delay, shape = carrier, color = mean_distance)) + geom_point(size = 3) + geom_text(aes(label = carrier), hjust = -0.5, vjust = 1, size = 3) + scale_color_gradient(low = "#FFAA00", high = "purple")
 
 arr_delay.summary_stats_plot
-
 ```
 
 # Problem 2
@@ -116,8 +115,7 @@ arr_delay.summary_stats_plot
 Please refer to the data set `mpg` that is available from the `ggplot2` package. Plot `displ` against `hwy` with faceting by `drv` and `cyl`, `color` disgnated by `class`, and `shape` by `trans`. This illustrates visualization with 4 factors.
 
 ```{r, 2}
-mpg.fourfactorplot = ggplot(mpg, aes(x = displ, y = hwy)) + theme_bw() + geom_point(aes(colour=class,shape=trans)) + scale_shape_manual(values = 1:length(unique(mpg$trans))) + facet_grid(drv~cyl)
+mpg1 = na.omit(mpg)
+mpg.fourfactorplot = ggplot(mpg1, aes(x = displ, y = hwy)) + theme_bw() + geom_point(aes(colour=class,shape=trans)) + scale_shape_manual(values = 1:length(unique(mpg1$trans))) + facet_grid(drv~cyl)
 mpg.fourfactorplot
 ```
-
-
