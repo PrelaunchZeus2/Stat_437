@@ -1,0 +1,42 @@
+---
+title: "Lecture Notes 2a"
+author: "John Salmon"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Lecture 2a
+[link to slides](https://archive.math.wsu.edu/faculty/xchen/stat437/LectureNotes2a.html)
+
+Topics:
+- faceting
+- annotating a plot
+- manually setting some scales
+- adjusting some guides
+- mathematical expressions in plots
+
+#### Faceting
+
+- a dataset can be split into subsets based on some criteria. The mpg dataset can be split into 7 subsets according to the levels of class or 3 based on the level of drv.
+
+-faceting takes an alternative approach to aesthetic by creating the same graph for each subset or subgroup instead of changing the color
+
+Two ways to facet
+1. facet_grid: 2d grid of panels defined by variables which form the rows and columns
+2. facet_wrap: ribbon of 1d panels wrapped into 2d
+
+basic syntax facet_wrap(facets, nrow = NULL, ncol = NULL, scales = "fixed", labeller = "label_value")
+
+- facets can be specified by ~variable or vars(variable)
+- nrow (or ncol) sets the number of rows or columns in which graphs are displayed
+- scales and labeller later
+- use ?facet_wrap to get more information
+
+
+
+
+
+

@@ -1,0 +1,202 @@
+---
+title: Stat437 Lecture 1b
+---
+
+
+```{r include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Lecture 1b: Visualization
+
+[link to slides](https://archive.math.wsu.edu/faculty/xchen/stat437/LectureNotes1b.html#/static-visualization)
+
+Visualizing High Dimensional Data is Difficult. Hopf Fibration [link](https://en.wikipedia.org/wiki/Hopf_fibration)
+
+Two Paradigms: 1. Static Visualization: Snapshot of a data set(non-interactive) 1. 
+Dynamic Visualization: A sequence of snapshots of data that a user can interact with (interactive)
+
+Static: An example is a fixed generated graph. Dynamic: An example is a dashboard 
+with filters or slicers. Or an animation.
+
+#### Static Packages
+There are several packages for static visualizations, Such as ggplot2. The Package, 
+igraph, creates graphs. ggdendro creates dendrograms(like tree of life) and tree 
+diagrams, and ggmap which visualizes dataframes over maps.
+
+#### Dynamic Packages
+ploty, for dynamic data frame visualization using dashboards, and gganimate which
+creates animations.
+
+### ggplot2
+
+elements involved in a ggplot2 plot
+- data, aesthtic mappings, geometric objects
+- statistical transformations
+- scales coordinate system
+- facet
+
+these elements are integrated via the package grammar
+
+- a plot maps data to visual elements via specific grammar
+- ggplot2 builds a plot layer by layer
+
+Selecting a proper coordinate system is important for visualizatoin
+- cartesian with (x,y) pairs
+- polar with position and angle (think boat or plane... traveling north turn left heading 320)
+
+#### example of ggplot2
+```{r, ggplot2 example}
+library(ggplot2)
+#use help (dataset) to get a description of the data
+mpg
+
+pl1 = ggplot(data = mpg) + geom_point(mapping = aes(x= displ, y = hwy))
+
+pl1 #display plot
+```
+- p1 is the handle for the plot (its an image object)
+- the geometric object geom_point are the "points" on the graph
+the aesthetic mapping mapping = aes maps "displ" and "hwy
+ to x-y coordinates using the original scales of measurements in data "mpg"
+
+```{r, another example}
+pl2 = ggplot(data = mpg) + geom_line(mapping = aes(x= displ, y = hwy))
+
+pl2
+```
+
+This using geom_line instead of geom_point connects each point with a line
+
+The basic structure of a ggplot2 plot command: ggplot(data = <DATA>) + <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+
+#### Elementary Visualization
+Using the mpg dataset, we will illustrate several instances of elemetary visualization including
+- scatter plot
+- density plot, histogram
+- boxplot
+- barplot, pie chart
+
+These 6 plots are all about summary statistics.
+Scatter plot: correlation, clustering
+Density plot: frequencies
+Histogram: frequency for specific events in specific ranges
+Boxplot: five point summary (median, first quartile, 3rd quartile, relative min & max)
+Barplot: similar to histogram
+Pie Chart: Proportion, or frequencies if normalized
+
+#### Back to the mpg dataset:
+```{r, back to mpg}
+library(ggplot2)
+library(dplyr)
+mptmp = mpg %>% select(displ, class, drv, hwy)
+head(mptmp)
+
+#convert character variables in mpg into factors
+mpg = mpg %>% dplyr::mutate_if(is.character, as.factor)
+class(mpg$class)
+
+unique(mpg$class)
+
+class(mpg$drv)
+unique(mpg$drv)
+#the default shape command will not list all the levels
+
+#scatterplot
+ggplot(mpg) + geom_point(aes(x = displ, y = hwy)) #same as before, very easy 1 line
+
+#add color aesthetic
+p1a = ggplot(mpg) + geom_point(aes(x = displ, y = hwy, color = class))
+p1a
+
+#add shape aesthetic
+p1b = ggplot(mpg) + geom_point(aes(x = displ, y = hwy, shape = class))
+p1b #not that shape by default only can handle 6 values and as such suv is not given a shape. you must manually specify that there are more shapes needed
+
+#fix shapes
+p1c = ggplot(mpg) + geom_point(aes(x=displ, y = hwy, shape = class)) + scale_shape_manual(values = 1:length(unique(mpg$class))) #manually specify number of shapes needed
+p1c
+
+
+#add axis labels and title
+p1b + xlab("Engine Displacement") + ylab("Highway Milage") + ggtitle("Efficiency") + scale_shape_manual(values = 1:7) +
+theme(plot.title = element_text(hjust = 0.5)) #adding this line moves the title to the center of the plot
+```
+[link to r shapes](https://www.sthda.com/english/wiki/ggplot2-point-shapes)
+levels are ordered first numerically, then alphabetically (numeralphabetic? dictionary order)
+
+
+#### Density Plot
+used to:
+- visually check the model assumptions
+- visually compare a response's behavior under different conditions
+
+when it comes to diagnostics, We don't even need q-q plot if we estimate density properly
+```{r, density plot}
+mpg1 = mpg %>% filter(class %in% c("compact", "suv", "2seater"))
+
+p2 = ggplot(mpg1, aes(x=hwy, color = class)) + geom_density(linetype = 'dashed') + theme_bw()
+#theme_bw() means background white
+p2
+```
+
+1. how many modes do you see?
+3 each of the peaks
+2. which density function shows a degree of skewness (right or left)
+compact(green) and suv(blue)
+3. if you look at the density plots, say something about the average? or can you?
+density does not tell you the average.
+4. within each class what is the most likely hwy
+technically there isnt one because the likelihood of a specific value for continuous variables is 0% but we can say that for example an suv the most likely range is $14 \pm 2$.
+
+$\mu = E(X) = \int_a^b x f(X) dx = x_0 f(x_0) (b-a)$ for some $x_0 \in [a,b]$ by Mean Value Theorem
+
+#### Histogram
+Create a histogram for hwy for each of 3 class
+
+```{r, histogram}
+p2c = ggplot(mpg1, aes(x=hwy, fill = class)) + geom_histogram(bins = 20, position = "dodge") + theme_bw()
+p2c
+```
+
+#### Boxplot
+Create a boxplot for hwy for each of the 3 class
+```{r, boxplot}
+p3 = ggplot(mpg1, aes(x=class, y = hwy)) + geom_boxplot() + theme_bw() + stat_summary(fun.y=mean, geom="Point", shape = 23, size = 4)
+p3
+
+```
+
+#### Bar Plot
+```{r, barplot}
+p4 = ggplot(mpg1)+theme_bw() + geom_bar(aes(x=class,y=hwy,fill=drv),stat='identity', position='dodge')
+p4
+```
+
+For some classes there are not enough observations to construct a bar.
+This is an unbalanced design, there is not an equal number of observations for each class.
+
+#### Pie Chart
+```{r, piechart}
+library(ggplot2) 
+library(scales)
+# load `scales` package in order to scale data
+mpg2 = mpg1 %>% group_by(class) %>% count() %>% ungroup() %>% mutate(percentage=`n`/sum(`n`)) %>% arrange(desc(class))
+
+# create labels using the percentages
+mpg2$labels <- scales::percent(mpg2$percentage)
+
+mpg2
+
+#make the pie chart
+pie = ggplot(mpg2) + geom_bar(aes(x="", y = percentage, fill=class), stat = "identity", width = 1) + coord_polar("y", start = 0) + theme_void() + geom_text(aes(x=1, y = cumsum(percentage) - percentage/2, label = labels))
+pie
+```
+- group data via class, obtain counts for each class, compute percentages from counts, and arrange classes by their descending percentages
+- caution ungroup() is needed after group_by(...) %>% count()
+- The best selling chart is the pie chart?
+
+- coord_polar converts bar plot into pie chart
+- theme_void() mean "a completely empty theme; otherwise the resulting pie chart does not look nice
+- geom_text adds labels to label different parts of a plot at their designated positions
+- labels in mpg2 is used to label the slices.
