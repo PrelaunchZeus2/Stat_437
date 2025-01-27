@@ -1,6 +1,6 @@
 ---
-title: "Lecture Notes 2a"
-author: "John Salmon"
+title: "Stat_437 Lecture 2a Notes"
+author: "John Salmon (011745357)"
 output: pdf_document
 ---
 
@@ -35,8 +35,111 @@ basic syntax facet_wrap(facets, nrow = NULL, ncol = NULL, scales = "fixed", labe
 - scales and labeller later
 - use ?facet_wrap to get more information
 
+```{r, facet_wrap}
+library(ggplot2)
+# build a base layer
+p1= ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy))
+# add faceting via `class` to p1
+p2 = p1 + facet_wrap(~class, nrow = 2)
+p2
 
+#p1 + facet_wrap(vars(class), nrow = 2)
 
+p2a = p1 + facet_wrap(~class, ncol = 2) #by column instead of row
+p2a
 
+p3 = ggplot(mpg, aes(x=displ, y =hwy)) + geom_point() + facet_wrap(cyl~drv)
+p3
+```
+p3 is pretty ugly because the titles end up taking space but it is still useful to know how to do for visualizing multiple levels.
 
+#### Facet Grid
+Grid forms a matrix of panels defiined by row and column faceting variables 
+- use ?facet_grid to obtain details
+-rows = NULL, cols = NULL takes the form of variable1 ~ variable2 .~ variable 2 or variable1 ~.
+- rows (or cols) variables that define faceting groups on the row(or column) division.
 
+```{r, facet grid}
+p1 + facet_grid(.~ drv) #row wise
+
+p1 + facet_grid(drv ~ .)#column wise
+
+#two variable faceting
+p1 + facet_grid(drv ~ cyl)
+```
+Notice that there are some blank grids where there are not any points, this is fine to leave in for the homework.
+
+#### Visualization with >=3 factors
+```{r, dimensional drift}
+library(dplyr)
+mpg1 = mpg %>% filter(manufacturer %in% c("chevrolet", "toyota"))
+p1c = ggplot(mpg1, aes(x=displ, y = hwy)) + theme_bw() + geom_point(aes(color=class, shape = manufacturer)) + facet_grid(drv~cyl)
+p1c
+```
+6-Dimensional Plot! displ x hwy x cyl x drv x class x manufacturer
+we can see different subcategories and groupings/sub-groupings even better now
+
+[real world application of plotting](https://academic.oup.com/bioinformatics/article/30/23/3424/207085)
+[another example(professor wrote it)](https://onlinelibrary.wiley.com/doi/epdf/10.1002/bimj.201900216)
+
+#### Annotating a plot
+
+two common commands for annotation:
+- geom_text()
+- geom_label()
+
+the syntax for both are very similar, however there is one line to pay attention to.
+Mapping: A set of aesthetic mappings created by aes(); if speciified and inherit.aes = TRUE(default), mapping is combined with the default mapping at the top level of the plot.
+-mapping must be supplied if there is no plot mapping
+- data: data too be displayed in this layer; if NULL, the default, data are inherited from the plot data as specified in the call to ggplot()
+- parse: if TRUE labels will (often) be parsed into (math) expressions; FALSE by default
+
+use ?geom_text and ?geom_label for more information
+
+[3 hour geom_text command](https://arxiv.org/pdf/1510.03497)
+
+```{r, annotation}
+
+p = ggplot(mpg, aes(displ,hwy))
+#add label via cyl; label is an aesthetic
+p1 = p + geom_label(aes(label=cyl), nudge_x = 0.05) #nudge moves the label in the x direction
+p1
+
+p+geom_label(aes(label=cyl, color=class)) #add class
+```
+Each observation is a label which corresponds to the number of cylinders
+Color for class was added on the second plot
+
+geom text will add characters directly to the plot and you have to specify where you want them to be.
+```{r geom_text}
+q = ggplot(mpg,aes(displ,hwy)) + geom_text(aes(label=cyl))
+q
+
+#can also add color
+qa = ggplot(mpg,aes(displ,hwy)) + geom_text(aes(label=cyl, color = class))
+qa
+```
+similar to label but just as raw text
+the second plot also has color added
+
+Annotate but harder(math)
+
+Annotate adds geometric objects to a plot. But unlike a typical geom functiion, properties of the geometric objects are not mapped from variables of a datafream, instead they are vectors
+
+The Annotate Command has a geom argument that states what object is to be used for annotating.
+
+Just look at the slides for the annotating notes, I dont really want to write all of that
+
+```{r annotation example}
+p = ggplot(mpg, aes(x=displ, y = hwy)) + geom_point()
+
+p1 = p + annotate("text", x = 2:5, y = 25, label = "some text")
+p1
+
+p2 = p + annotate("rect", xmin = 3, xmax = 4.2, ymin = 12, ymax = 21, alpha = .2)
+p2
+```
+```{r even more annotation}
+p2 = p + annotate("text", x = 4, y = 40, label = "italic(R) ^ 2 == 0.75", parse = TRUE) #convert to mathematical symbols
+p2
+```

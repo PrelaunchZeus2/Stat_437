@@ -1,0 +1,41 @@
+---
+title: "Lecture Notes 2c"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, lol}
+library(ggplot2)
+library(dplyr)
+
+```
+# Lecture 2c
+
+#### geoom_+scale*manual
+
+```{r}
+p5 =ggplot(mpg, aes(cty, hwy)) + facet_wrap(~cyl) + theme_bw() + geom_point(aes(shape = drv, color = drv), size = 1.2) + scale_shape_manual(values = c(2,1,4)) + geom_line(aes(linetype = drv), size=0.3) + scale_linetype_manual(values = rep("dotted", 3))
+
+p5
+
+```
+
+#### Combine 2 ggplot2 plots
+
+```{r, combine 2}
+p1 = ggplot(mpg, aes(cty, hwy)) + geom_point()
+p2 = ggplot(mpg, aes(displ, hwy)) + geom_point()
+
+#combine the two plots
+library(gridExtra)
+grid.arrange(p1, p2, nrow = 1)
+```
+#### Concepts not covered
+- stat transforms stat_XXX
+- figure margin adjustment: Margin
+professor says margin adjustment is a complete Pain in the ass so we arent going to cover it. Information on the above can be found in the book :ggplot2: elegant graphs for data analysis" by Hadly Wickham or in various online resources (chatgpt?).

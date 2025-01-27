@@ -113,7 +113,7 @@ arr_delay.summary_stats_plot
 
 # Problem 2
 
-Please refer to the data set `mpg` that is available from the `ggplot2` package. Plot `displ` against `hwy` with faceting by `drv` and `cyl`, `color` deisgnated by `class`, and `shape` by `trans`. This illustrates visualization with 4 factors.
+Please refer to the data set `mpg` that is available from the `ggplot2` package. Plot `displ` against `hwy` with faceting by `drv` and `cyl`, `color` designated by `class`, and `shape` by `trans`. This illustrates visualization with 4 factors.
 
 ```{r, 2}
 mpg1 = na.omit(mpg)

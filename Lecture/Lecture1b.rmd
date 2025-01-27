@@ -1,5 +1,7 @@
 ---
-title: Stat437 Lecture 1b
+title: "Stat437 Lecture 1b Notes"
+author: "John Salmon (011745357)"
+output: pdf_document
 ---
 
 

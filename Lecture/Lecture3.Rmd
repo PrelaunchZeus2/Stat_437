@@ -1,0 +1,36 @@
+---
+title: "Lecture3"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Lecture 3: Clustering
+
+#### Clustering Motivation
+
+- Marketing
+- Medicine
+- Economics
+
+Clustering is often used in exploratory data analysis or as a starting point of further study.
+
+#### Basic Principles
+
+In general it refers to a broad set of techniques for finding subgroups or clusters in a data set.
+- Observations within each group are quite similar to each other
+- Observations in different groups are quite different from each other
+
+Clustering depends on the concept of "similarity" (or "Dissimilarity)
+
+2 Popular clustering methods
+- k-means clustering
+- hierarchical clustering
+Specificity in your method is better
+Hierarchical clustering is typically more flexible.
+
+

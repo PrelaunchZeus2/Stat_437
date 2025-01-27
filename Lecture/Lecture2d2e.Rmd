@@ -1,0 +1,196 @@
+---
+title: "lecture 2d & 2e"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Lecture 2d
+
+- the textbook for stat 435 is quite elementary.
+Packages Needed:
+- ggmap
+- igraph
+- ggdendro
+- plotly
+- gganimate
+```{r, lol}
+library(dplyr)
+library(ggplot2)
+library(ggmap)
+library(ggdendro)
+library(plotly)
+library(gganimate)
+```
+
+#### Overview
+
+- visualizing data
+- visualizing network data
+- visualizing tree-like structures
+- dynamic visualization
+
+Example tree data, brain artery mappings or brochi (lung pathways) for the brain if your biological features are abnormal, too many blood vessels (tumor) not enough (stroke) then you have a major problem. But how do you store and analyze this network/tree data?
+
+Another example, Kidney shape can tell you whether a person might have kidney disease. This CT scan process is relatively uninvasive as opposed to cutting you open and taking a biopsy. So being able to analyze the 2d image created is very valuable.
+
+```{r, get data}
+mydata = read.csv("/Volumes/T7/Stat_437/Lecture/vehicle-accidents.csv")
+mydata$State <- as.character(mydata$State)
+mydata$MV.Number = as.numeric(mydata$MV.Number)
+
+mydata = mydata %>% filter(State !="Alaska" & State !="Hawaii")
+head(mydata %>% select(State,MV.Number))
+```
+
+GGMAP is premium to make a map so its left out here
+
+#### igraph
+
+Binary Relationships, such as interactions between two individuals, a disease transmitting between two subjects, and reaction between two chemicals, among subjects or objects can be represented as networks
+
+- each subject is a node or vertex
+- each interaction is an edge between associated nodes
+
+There is a cool study/paper/whatever on how a tweet propogates through the internet.
+Some also study the connection of our comupters, servers, and server hubs. They want to see which computer network structure is the most secure.
+
+```{r, get data}
+nodes = read.csv("/Volumes/T7/Stat_437/Lecture/Dataset1-Media-Example-NODES.csv",header=T, as.is=T)
+head(nodes)
+links = read.csv("/Volumes/T7/Stat_437/Lecture/Dataset1-Media-Example-EDGES.csv",header=T, as.is=T)
+head(links)
+```
+
+Network visualization of media sites mentioning each other through hyperlink, reference, and other means.
+
+```{r, make network graph}
+library(igraph)
+net=graph_from_data_frame(d=links,vertices=nodes,directed=T)
+net
+
+# remove multiple edges and loops
+net1=simplify(net,remove.multiple=T,remove.loops=T)
+# add "vertex.label" and specify label color
+plot(net1, edge.arrow.size=.4, edge.color="blue",vertex.label=V(net)$media, vertex.label.color="black")
+```
+The R Package igraph create graphs as representation of networks.
+
+relationships can be structured differently. It can be one way, predator -> prey, or bi-way media1 <-> media2. 
+It is important to consider the structure of you r relationships
+
+The above is a weighted directed graph.
+
+You can interpret the graph by breaking stuff into sub-graphs and counting the number of relationships or connections.
+
+graph theory and small graph world could be interesting.
+toplogy of graphs could also be another thing to look into
+ontology too maybe? set of all sets...
+
+there are a lot of different things that can be represented by different graphs. binary vs hyper graph
+
+#### Dendrograms
+
+A dendrogram is a diagram representing a tree.
+- in hierarchical clustering we can use it to show the arrangement of clusters
+- decision making: illustrates decisions to be made under different circumstances
+- phylogenetics, the evolutionary relationships can be represented.
+
+Famous model in stats and ML: Regression tree and Boosting
+Anyone who can write a paper describing why trees work so well will probably earn an award
+
+```{r dendrogram}
+library(ggdendro)
+head(USArrests)
+```
+Data has 3 crimes, Murder Assault, Rape
+UrbanPop is percent of populatoin living in urban areas
+we are going to classify or cluster based on the euclidean distance between the 4 features.
+
+```{r, make dendro}
+hc <- hclust(dist(USArrests), "ave")  # clustering
+ggdendrogram(hc, rotate = TRUE) # rotate by 90 degrees
+```
+This is based on pairwise distance between each observation, EACH OBSERVATION must be in a row otherwise it is useless
+start on the furthest right, there are two distinct clusters, move to the left and add more over time increasing the resolution untill you are satisfied.
+Its up to us to decide how many states we want to include in each cluster, and the number of clusters.
+
+# Lecture 2e
+## Interactiive and Dynamic Visualizations
+
+#### Overview
+Interactive visualization allows users to interact with resulting plots
+Dynamic visualization present relationships between features as snapshots of observations at different times.
+
+plotly is used for interactive visualizations and gganimate is for dynamic.
+
+Interactive and dynamic visualizations are better presented via html than pdf files.
+plotly can also be screenshotted with webshot and phantomjs (javascript(why????(im going to buy a rope and rickety chair if i have to write it)))
+```{r webshot}
+install.packages("webshot")
+webshot::install_phantomjs()
+```
+
+brief syntax
+plot_ly(data = data.frame()m type = NULL)
+type: character strings specifiying the trace type (scatter, bar, box, etc.)
+?plotly::plot_ly for more info
+
+#### Example 1 with iris data
+```{r ex 1}
+library(plotly)
+head(iris)
+```
+blah blah blah google the iris dataset to learn more
+
+```{r, ex1 pt2 i wont regret this scheme later}
+#caution ~ is added before a variable name in this library
+p = plot_ly(iris, x = ~Petal.Length, y = ~Petal.Width, color = ~Species, type = "scatter") %>% layout(xaxis=list(title="Petal Length"), yaxis=list(title="Petal Width"))
+library(shiny) #NOOOOOOOOOO! 시발 아이고
+div(p)
+
+#adjust the ledger position (for hw)
+
+```
+
+```{r ex2}
+head(midwest %>% select(percollege,state) %>% data.frame())
+
+p1 = plot_ly(midwest, x = ~percollege, color= ~state, type = "box") %>% layout(xaxis=list(title = "Percent of Population with College Education"))
+p1
+```
+```{r, example 2 saving the plot}
+library(htmlwidgets)
+htmlwidgets::saveWidget(p1, file = "InteractivePlot2.html")
+#yay now you have a random file in the folder 
+```
+
+#### Visualization with gganimate
+
+```{r, animate}
+install.packages("gapminder")
+library(gapminder)
+head(gapminder)
+```
+gapminder has information on life expectancy, populaition, gdp per capita, across `r unique(gapmider$year` different years for different countries
+
+life expectancy vs gdp per cap
+```{r, plot}
+p = ggplot(gapminder, aes(x = gdpPercap, y = lifeExp, size = pop, colour = country)) + geom_point(show.legend = FALSE) + scale_color_viridis_d() + scale_size(range = c(2, 12)) + scale_x_log10()+ labs(x="GDP Per Capita", y = "LIFE expectancy")
+p #Static Visualization Nothing Moves
+```
+```{r, i cant see enough movement!}
+library(gganimate)
+library(gifski) #visualization as gif in pdf output
+p2 = p+transition_time(year)+labs(title = "Year:{frame_time}")
+#p2
+#why does it make 100 png images instead of displaying as a graph
+animate(p2, fps = 10, width = 750, height = 450)
+anim_save(p2, "MyAnimation.gif")
+```
+
+WE ARE DONE WITH VISUALIZATION!!!!!!!!
