@@ -83,10 +83,12 @@ p1
 
 This problem requires you to visualize the binary relationship between members of a karate club as an undirected graph. Please install the R library `igraphdata`, from which you can obtain the data set `karate` and work on it. Create a graph for `karate`. Once you obtain the graph, you will see that each vertex is annotated by a number or letter. What do the numbers or letters refer to? Do you see subgraphs of the graph? If so, what do these subgraphs mean? 
 ```{r, 2}
+library(igraph)
 library(igraphdata)
-
-
+data(karate)
+plot(karate, edge.color="blue")
 ```
+The two sub-groups are represented by different 
 
 
 # Problem 3
@@ -98,8 +100,8 @@ Please use the `mpg` data set we have discussed in the lectures. Create an inter
 library(plotly)
 head(mpg)
 mpg = mpg %>% mutate_at('cyl', as.factor)
-plotly3 = plot_ly(mpg, x = ~displ, y = ~hwy, color = ~cyl, type = "scatter") %>% layout(xaxis=list(title="engine displacement in litres"), yaxis=list(title="highway miles per gallon"))
-plotly3
+myplotly = plot_ly(mpg, x = ~displ, y = ~hwy, color = ~cyl, type = "scatter") %>% layout(xaxis=list(title="engine displacement in litres"), yaxis=list(title="highway miles per gallon")) %>% layout(legend=list(title=list(text="# of cylinders"))) %>% layout(legend = list(x = 100, y = 0.5))
+myplotly
 ```
 
 
