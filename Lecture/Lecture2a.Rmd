@@ -124,7 +124,7 @@ the second plot also has color added
 
 Annotate but harder(math)
 
-Annotate adds geometric objects to a plot. But unlike a typical geom functiion, properties of the geometric objects are not mapped from variables of a datafream, instead they are vectors
+Annotate adds geometric objects to a plot. But unlike a typical geom functiion, properties of the geometric objects are not mapped from variables of a dataframe, instead they are vectors
 
 The Annotate Command has a geom argument that states what object is to be used for annotating.
 

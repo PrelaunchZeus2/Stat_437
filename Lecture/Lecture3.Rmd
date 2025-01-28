@@ -33,4 +33,49 @@ Clustering depends on the concept of "similarity" (or "Dissimilarity)
 Specificity in your method is better
 Hierarchical clustering is typically more flexible.
 
+function for clustering in R *clusGap* from *cluster* , and *ElemStatLearn* for the data set
+
+Working with Iris data set for examples again. Iris is $\text{dimension } p = 4$
+
+Euclidean distance
+$d(x_i, x_j) = (\sum_{k = 1}^{p}(x_{ik}-x_{jk})^2)^\frac{1}{2}$
+Distance between two of the same vector = 0
+Distance between two opposite vectors $= 2||v||$ if 2 vectors V & W where $W = -V$
+
+3 rules for distance
+$d(u,w) + d(w,z) \ge d(u,z)$ Triangular inequality
+$d(u,w) = 0 \iff u = w$
+$d(u,w) = d(w,u)$
+
+dissimilarity between $x_i \text{and} x_j$ is defined as $d_{ij} = d^2(x_i, x_j)$
+smaller $d_{ij}$ means $x_i \text{and} x_j$ are more similar and less dissimilar.
+
+it is much easier to optimize square functions than square root functions because ttaking the derivative of a square root functioin explodes to - as f -> 0.
+
+Using squared euclidean distance is better than using euclideian distance.
+
+```{r}
+x1 = c(5.1,3.5,1.3,0.2)
+x2 = c(4.9,3.0,1.4,0.2)
+x3 = c(4.7,3.2,1.3,0.2)
+
+sqrt(sum((x1-x2)^2))
+sqrt(sum((x1-x3)^2))
+```
+
+K-means clustering divides observations int K disjoint clusters and assigns each observation to a cluster.
+- When $K = 2$ each observations will be assigned to one of 2 disjoint clusters
+- Let $k = 1$ or 2 denote the cluster membership of an observation.
+
+Clustering is a mapping C that assigns the ith observation $x_i$ to Cluster $k$
+This mapping is many-to-one
+it is never many-to-one because the clusters are disjoint
+
+Modern Deep learning classification is one-to-many *BUT* probabilisticlly
+
+*Clustering is just label assignment*
+
+
+
+
 

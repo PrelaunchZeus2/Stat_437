@@ -1,15 +1,13 @@
 ---
 title: "Stat 437 HW2"
 author: 
-     - Your Name (Your student ID)
+     - John Salmon (011745357)
 header-includes:
    - \usepackage{bbm}
    - \usepackage{amssymb}
    - \usepackage{amsmath}
    - \usepackage{graphicx,float}
    - \usepackage{natbib}
-output:
-  pdf_document: default
 fontsize: 11pt
 ---
 
@@ -43,12 +41,39 @@ Please refer to the NYC flight data `nycflights13` that has been discussed in th
 
 
 You are interested in looking into the average `arr_delay` for 4 different `month` 12, 1, 7 and 8, for 3 different `carrier` "UA", "AA" and "DL", and for `distance` that are greater than 700 miles, since you suspect that colder months and longer distances may result in longer average arrival delays. Note that you need to extract observations from `flights`, and that you are required to use `dplyr` for this purpose. 
+```{r, data setup}
+library(dplyr)
+library(nycflights13)
+flights1 = flights %>% filter(month %in% c(12, 1, 2, 6, 7, 8), carrier %in% c("UA", "AA", "DL"), distance > 700) #extract observations
+flights1 = na.omit(flights1)
+flights1 = flights1 %>% mutate_at('month', as.factor)
+head(flights1)
+```
 
 The following tasks and questions are based on the extracted observations.
 
 (1.a) For each combination of the values of `carrier` and `month`, obtain the average `arr_delay` and obtain the average `distance`. Plot the average `arr_delay` against the average `distance`, use `carrier` as facet; add a title "Base plot" and center the title in the plot. This will be your base plot, say, as object `p`. Show the plot `p`.
+```{r, 1.a}
+library(ggplot2)
+summary_stats = flights1 %>% group_by(month, carrier) %>% summarise(mean_arr_delay = mean(arr_delay), mean_distance = mean(distance))
+p = ggplot(summary_stats, aes(x = mean_distance, y = mean_arr_delay)) + geom_point() + ggtitle("Base Plot") + theme(plot.title = element_text(hjust = 0.5)) + facet_wrap(~carrier)
+p
+```
 
 (1.b) Modify `p` as follows to get a plot `p1`: connect the points for each `carrier` via one type of dashed line; code the 3 levels of `carrier` as $\alpha_1$, $\beta_{1,2}$ and $\gamma^{[0]}$, and display them in the strip texts; change the legend title into "My $\zeta$" (this legend is induced when you connect points for each `carrier` by a type of line), and put the legend in horizontal direction at the bottom of the plot; add a title "With math expressions" and center the title in the plot. Show the plot `p1`.
+```{r, 1.b}
+summary_stats = summary_stats %>%
+  mutate(
+    carrier_new = case_when(
+      carrier == "AA" ~ expression(alpha[1]),
+      carrier == "DL" ~ expression(beta[1*","*2]),
+      carrier == "UA" ~ expression(gamma^"[0]")
+    )
+  )
+p1 = p + geom_line() 
+p1
+
+```
 
 (1.c) Modify `p1` as follows to get a plot `p2`: set the font size of strip text to be 12 and rotate the strip texts counterclockwise by 15 degrees; set the font size of the x-axis text to be 10 and rotate the x-axis text clockwise by 30 degrees; set the x-axis label as "$\hat{\mu}$ for mean arrival delay"; add a title "With front and text adjustments" and center the title in the plot. Show the plot `p2`
 
@@ -57,6 +82,11 @@ The following tasks and questions are based on the extracted observations.
 # Problem 2 
 
 This problem requires you to visualize the binary relationship between members of a karate club as an undirected graph. Please install the R library `igraphdata`, from which you can obtain the data set `karate` and work on it. Create a graph for `karate`. Once you obtain the graph, you will see that each vertex is annotated by a number or letter. What do the numbers or letters refer to? Do you see subgraphs of the graph? If so, what do these subgraphs mean? 
+```{r, 2}
+library(igraphdata)
+
+
+```
 
 
 # Problem 3
@@ -64,5 +94,12 @@ This problem requires you to visualize the binary relationship between members o
 This problem requires to to create an interactive plot using `plotly`. If you want to display properly the plot in your HW answers, you may well need to set your HW document as an html file (instead of doc, docx or pdf file) when you compile your R codes.
 
 Please use the `mpg` data set we have discussed in the lectures. Create an interactive, scatter plot between "highway miles per gallon" `hwy` (on the y-axis) and "engine displacement in litres" `displ` (on the x-axis) with the `color` aesthetic designated by "number of cylinders" `cyl`, and set the x-axis label as "engine displacement in litres" and y-axis label as "highway miles per gallon". You need to check the object type for `cyl` and set it correctly when creating the plot. Add the title "# of cylinders" to the legend and adjust the vertical position of the legend, if you can. For the last, you may look through https://plotly.com/r/legend/ for help.
+```{r, 3}
+library(plotly)
+head(mpg)
+mpg = mpg %>% mutate_at('cyl', as.factor)
+plotly3 = plot_ly(mpg, x = ~displ, y = ~hwy, color = ~cyl, type = "scatter") %>% layout(xaxis=list(title="engine displacement in litres"), yaxis=list(title="highway miles per gallon"))
+plotly3
+```
 
 
