@@ -75,6 +75,23 @@ Modern Deep learning classification is one-to-many *BUT* probabilisticlly
 
 *Clustering is just label assignment*
 
+The loss function for K-means seeks to minimize the dissimilarity betweenn points in the same cluster.
+In the extreme case where all observations are the same you would hope there would only be 1 cluster.
+
+The number of combinations for N observations disjoint clustering is $N!$(n factorial $n * (n-1) * (n-2) * ... * (n-n + 1))$
+Clustering is a combinatorial complexity which is NP hard.
+
+1. Ask the correct questions
+2. Find approximate answers
+The paradigm has shifted as processing and time is limited.
+
+K-means algorithm
+1. Randomly assign a number 1 to k to each observation
+2. iterate the following steps
+2. (a) for each cluster compute the centroid
+2. (b) assign each observation to the cluster whose centroid is closest.
+
+when cluster assignment stops changing we say the algorithm "converges" (perhaps to a local minimum of the loss function)
 
 
 
