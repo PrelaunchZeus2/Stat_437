@@ -2,7 +2,9 @@
 title: "Lecture3"
 author: "John Salmon"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -91,8 +93,120 @@ K-means algorithm
 2. (a) for each cluster compute the centroid
 2. (b) assign each observation to the cluster whose centroid is closest.
 
-when cluster assignment stops changing we say the algorithm "converges" (perhaps to a local minimum of the loss function)
+When cluster assignment stops changing we say the algorithm "converges" (perhaps to a local minimum of the loss function)
+The algorithm will always converge to a local minimum, but it will not always converge to the global minimum
+Different initial configurations for the Algorithm may give different clustering results when it converges.
+The algorithm needs to run under multiple initial configurations to help get closer to the global minimum of the loss function by choosing a best initial configuration.
 
+Other dissimilarity Measures
+Euclidean distance is not invariant to vector length
 
+- Correlation Distance $1 - corr(x_i, x_j)$ where corr is the Pearson correlation between the p samples. Its 1 minus correlation because that way the value can never be negative, there is no negative distance. Pearson correlation is invariant when it comes to the length of a vector. Pearson Correlation is equivalent to the Cosine of the angle between two vectors.
 
+- Manhattan distance $\sum^{p}_{k=1} \mid x_{ik} - x_{jk} \mid$ Frequently used in computer science to convert binary strings.
+
+Qualitative Features
+- For ordinal variables, map them using $y -> \tilde{y} = [rank(y) - 2 / M] / M$
+- For Nominal Variables (such as gender): for values a and b in the range of the variable, set $d(a,b) = 0$ when $a = b$ and $d(a,b) = 1$ for when $a \neq b$
+
+True Number of Clusters $K_0$ is unknown and needs to be estimated.
+
+- the "gap statistic" can be used to estimate the number of clusters. It's based on differences between within-cluster sums of squares, and is implemented by the function `clusGap` of the library `cluster`.
+The gap statistic does not estimate $K_0$ for each dataset. Instead a set of assumptions should be satisfied to ensure its accuracy.
+
+#### K means syntax
+The command is very simple. ?kmeans for more info.
+- X: data object as matrix
+- centers: number of clusters to form, or a matrix containing centroids
+- nstart: number of random, initial configurations of cluster memberships.
+- algorithm: the algorithm used to minimize the loss function
+- iter.max the maximum number of iterations run by the algorithm
+
+the kmeans command returns:
+- Cluster: a vector of integers for the value $k_i$ of whose $ith$ entry indicates that the $ith$ observation is assigned to Cluster $k_i$, where K is the number of clusters to form
+- Centers: a matrix of cluster centers, whose $jth$ row contains the coordinates of the centroid of Cluster j
+- tot.withns: the value of the loss function when the algorithm converges. Total within-cluster sum of squares.
+
+Notes:
+- Kmeans cannot be applied to non-numerical data (i.e. character string, ordinal or nominal) These must be converted.
+- Even with the same number of clusters different nstart or iter,max values may give different clustering results.
+
+#### Example 1
+```{r, ex1 clustering}
+set.seed(2)
+x = matrix(rnorm(50*2), ncol=2)
+x[1:25,1] = x[1:25, 1] + 3
+x[1:25, 2] = x[1:25, 2] -4
+#create a dataset split into two clusters by changing mean vectors of 25 obs. at a time.
+```
+
+The family of Gaussian distributions are closed under both scaling, and translation.
+$Y = \sigma X + \mu \sim N(\mu, \sigma)$
+
+$X \sim N(2,1)$, $Y \sim N(0,4)$
+
+If x and y are independent then $Z = (X,Y) \text{ must be a dist f dim 2}$
+
+with a set of 50 observations(rows), with 2 columns, there are 50 mutually independent observations, meaning if you pick any 2 they will be independent.
+Independence implies that covariance is 0.
+5 params to determine a 2-D normal distribution mean & variance of each variable, and covariance of both.
+1-D you only need 2. Mean, variance.
+```{r, ex1 clustering2}
+km.out=kmeans(x,2,nstart=20)
+km.out
+# create new data.frame with "group" and "cluster"
+y = data.frame(x); colnames(y)=c("X1","X2")
+y$group = factor(rep(c(1,2),each=25))
+y$cluster=factor(km.out$cluster)
+library(ggplot2)
+p = ggplot(y,aes(X1,X2)) + geom_point(aes(shape=group,color=cluster)) + xlab("Feature 1")+ylab("Feature 2") + ggtitle("Results with K=2")+theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+p
+```
+
+```{r, ex1 clustering3}
+set.seed(4)
+km.out3 =kmeans(x,3,nstart=20)
+# show the 3 centroids
+km.out3$centers
+# create new data.frame with "group" and "cluster"
+y = data.frame(x); colnames(y)=c("X1","X2")
+y$group = factor(rep(c(1,2),each=25))
+y$cluster=factor(km.out3$cluster)
+p = ggplot(y,aes(X1,X2))+geom_point(aes(shape=group,color=cluster))+xlab("Feature 1")+ylab("Feature 2")+ggtitle("Results with K=3")+theme_bw()
+p
+```
+when an extra cluster is added, at least one of the clusters need to be split into the added cluster. The total within cluster sum of squares cannot be smaller if the number of clusters is incorrect.
+
+As you change the number of clusters throughout the clustering process you will see the within-cluster sum of squares change. You know you likely have the right number of clusters when improvement based on that metric stops.
+
+```{r, effects of nstart}
+set.seed(3)
+km.out = kmeans(x, 3, nstart = 1)
+km.out=kmeans(x,3,nstart=1)
+km.out$tot.withinss
+km.out=kmeans(x,3,nstart=20)
+km.out$tot.withinss
+```
+see how the within sum of squares changes with nstart changing.
+
+#### Monte Carlo
+used for generating data.
+Started as a mathematics thing for computing complex integrals.
+Monte-carlo methods refer to situations where you generate a bunch of samples from a distribution then transform the samples and compute something.
+
+#### Gap statistic
+assumes a null distribution (the null distribution is the distribution of data given the null hypothesis is true).
+if null distribution is true -> compute the statistic
+if the null distribution is not true -> ???
+Monte carlo is used to compute the statistic.
+After, compare the stat under the null hypothesis then compare it to the observed statistic.
+large difference -> reject $H_0$
+small difference -> retain $H_0$
+
+clusGap is the function
+it returns:
+- tab: a matrix with k.max rows and 4 columns logW, E.logW, gap, and SE.sim
+Once clusGap has been executed we return the true number $K_0$ of clusters by executing the function maxSE.
+The best method is "Tibs2001SEmax" but “firstSEmax” is the default.
+gap statistic assumes a uniform distribution
 
