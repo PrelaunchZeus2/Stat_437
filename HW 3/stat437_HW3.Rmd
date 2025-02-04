@@ -92,10 +92,12 @@ Select from `flights` observations that are for 3 `carrier` "UA", "AA" or "DL", 
 ```{r, select data}
 library(dplyr)
 library(nycflights13)
-flights1 = flights %>% filter(month %in% c(7, 2), carrier %in% c("UA", "AA", "DL"), distance > 700) #extract observations
-flights1 = na.omit(flights1)
-flights1 = flights1 %>% mutate_at('month', as.factor)
-head(flights1)
+flights = flights %>% filter(month %in% c(7, 2), carrier %in% c("UA", "AA", "DL"), distance > 700) #extract observations
+flights = flights %>% select(dep_delay, arr_delay, distance, air_time, month, carrier)
+flights = flights %>% mutate_at('month', as.factor)
+flights = na.omit(flights)
+head(flights)
+flights
 ```
 
 
@@ -104,11 +106,33 @@ head(flights1)
 
 ```{r, 3.1}
 set.seed(1)
+#library(ElemStatLearn)
+library(cluster)
+#library(clusgap)
+
+#perform clustering
+k2 = kmeans(flights[,1:4], centers = 2, nstart = 20)
+k3 = kmeans(flights[,1:4], centers = 3, nstart = 20)
+flights$k2cluster = factor(k2$cluster)
+flights$k3cluster = factor(k3$cluster)
 
 
+library(ggplot2)
+k3plot = ggplot(flights, aes(x = arr_delay, y = dep_delay)) + geom_point(aes(color = k3cluster, shape = carrier)) + theme_bw()
+k3plot
+
+k2plot = ggplot(flights, aes(x = arr_delay, y = dep_delay)) + geom_point(aes(color = k2cluster, shape = month)) + theme_bw()
+k2plot
 ```
 
 
 3.2) Use `set.seed(123)` to randomly extract 50 observations, and to these 50 observations, apply hierarchical clustering with average linkage. (i) Cut the dendrogram to obtain 3 clusters with leafs annotated by `carrier` names and resulting clusters colored distinctly, and report the corresponding height of cut. (ii) In addition, cut the dendrogram to obtain 2 clusters with leafs annotated by `month` numbers and resulting clusters colored distinctly, and report the corresponding height of cut. Here are some hints: say, you save the randomly extracted 50 observations into an object `ds3sd`, for these observations save their `carrier` names by keeping their object type but save `month` numbers as a `character` vector, make sure that `ds3sd` is a `matrix`, transpose `ds3sd` into `tmp`, assign to `tmp` column names with their corresponding carrier names or month numbers, and then transpose `tmp` and save it as `ds3sd`; this way, you are done assigning cluster labels to each observation in `ds3sd`; then you are ready to use the commands in the file `Plotggdendro.r` to create the desired dendrograms. 
+
+```{r, 3.2}
+set.seed(123)
+fifty_flights = sample()
+
+
+```
 
 
