@@ -210,3 +210,13 @@ Once clusGap has been executed we return the true number $K_0$ of clusters by ex
 The best method is "Tibs2001SEmax" but “firstSEmax” is the default.
 gap statistic assumes a uniform distribution
 
+```{r clusgap}
+library(cluster)
+set.seed(3.14)
+gap = clusGap(iris[,1:2], kmeans, K.max = 10, B = 250, nstart = 20, iter.max = 20)
+gap$tab
+k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
+print(k)
+```
+
+
