@@ -213,10 +213,11 @@ gap statistic assumes a uniform distribution
 ```{r clusgap}
 library(cluster)
 set.seed(3.14)
-gap = clusGap(iris[,1:2], kmeans, K.max = 10, B = 250, nstart = 20, iter.max = 20)
+gap = clusGap(iris[,1:2], kmeans, K.max = 10, B = 100, nstart = 20, iter.max = 20)
 gap$tab
 k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
 print(k)
 ```
 
-
+#### The standardization debate
+Standardization removes the magnitude's of the vectors by changing them to be approximately all the same length. In some cases this has no effect, in others there is important information contained in the relationships between vector length. This loss of information could reduce accuracy of results. If you standardize the data the cosine of the angle vectors (pearson correlation coefficient) is the only relevant comparison left.
