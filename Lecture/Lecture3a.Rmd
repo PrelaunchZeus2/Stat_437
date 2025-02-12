@@ -1,0 +1,125 @@
+---
+title: "Lecture 3a"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Stat 437 Lecture Notes 3a
+
+We are done with k-means clustering. 
+
+#### Group Exercise
+1. Observation
+1. Model for Observations
+1. Feature Extraction
+1. Mapping of clusters
+1. Clusters
+Uncertainty in clustering comes from a few different places. The main being the variance of features between samples. I.e. not all red maple leaves are going to be exact clones of each other.
+Uncertainty can also cme from the process of clustering. i.e. Differences in machines used to cluster.
+
+- Feature $X_1,X_2,X_3 \sim \text{Cluster 1}$ $X_4, X_5 \sim \text{Cluster 2}$ Then observe $X_1, X_2, X_3$ to some extent then assign $\text{obs1} \in \text{clust 1}$
+Flexibility of the similarity measure.
+Features are random so Similarity between observations are random!
+You see what the probability of two observations being similar means. 
+
+Important:
+Clustering is `Unsupervised` You can't train your model for the purpose of feature selection.
+
+You have to get creative with the methods you use for selecting the features you do. Such as the distance or angle between "fingers" in species of maple leaves or the number or distribution of veins within the leaf's structure.
+
+Summary:
+If you look at a set of observations and you know there are two clusters.
+1. map each observation into something
+1. then map features
+1. then perform clustering
+1. assess accuracy of clustering processing
+
+Endogeneity is a difficult issue to deal with when performing modeling and inference
+Endogeneity: a statistical issue that occurs when an explanatory variable is correlated with the error term in a model
+
+Review:
+Squared Euclidean Distance is good because as a convex function it is easier to optimize, but it is very sensitiive to outliers.
+
+#### Hierarchical Clustering
+It is a more flexible version of K-means but not really a more "improved version"
+
+Recall:
+For k-means we need to specify
+1. the number of clusters
+1. the inital centers for the clusters to start the optimization process
+
+HC frees us from these requirements.
+HC:
+- does not have the two disadvantages of k-means (seen above)
+- requiires a measure of dissiimilarity between groups(clusters)
+- often produces hierarchical clusters, where each observation is a cluster at the finest level, clusters with increasng dissimilarities are nested, and all observations form one cluster at the coarsest level.
+
+Two Modes:
+- Bottom-up (or agglomerative): start with each observation being its own cluster then merge them until only one cluster remains.
+- top-down (or divisive): start with the coarsest level (1 cluster) then split into other clusters until each one is in its own cluster.
+
+Measuring the distance between two pointst is easy, just use pythagorean theorem.
+For measuring distance between clusters there are a few options
+Average Linkage: The distance between cluster centroids
+Max/Min Linkage: The distance between the furthest and closest points in the cluster.
+
+Slicing a dendrogram: the height is the "magnitude of dissimilarity", within the ranges, there are certain numbers of clusters.
+But if you don't know how many clusters there are supposed to be then how do you decide where to slice your dendrogram.
+
+-The dissimilariity between two clusters indicates the height in the dendrogram at which these two clusters should be fused.
+- The larger the height is, the more dissimilar the branches or leaves are from each ther at this height.
+- The degree of similarity between two clusters is not represented by horizontal distance, It is represented by the height at which they split.
+
+Hierarchical Clustering will not necessarily be produced when sets of clusters are produced by different criteria.
+i.e. if you cluster mammals by number of legs you may get a differerent number of clusters than if you chose to do so by number of bones. These resulting clusters are not compatible with each other.
+
+HC algorithm
+1. Start with n observations and a measure of all the pairwise dissimilarities. Treat each observation as its own cluster.
+1. For $i = n, n-1, \ldots , 2$:
+a. Examine all pairwise inter-cluster dissimilarities among the i clusters and identify the pair of clusters that are least dissimilar. Fuse these two clusters. The dissimilarity between these two clusters indicates the height in the dendrogram at which the fusion should be placed.
+b. compute the new pairwise inter-cluster dissimilarities among the $i-1$ remaining clusters.
+
+Practical Issues on HC:
+- what dissimilarity measure do you use?
+- is standardization needed for observations for each feature?
+- is the cluster found by the algorithm sensible?
+- How to interpret clustering results?
+
+Choice of Dissimilarity Measure
+- Strong Effect on the Resulting Dendrogram
+- Should aim at capturing latent patterns in the data
+- Should be determined by the type of data being clustered and the scientific question at hand (Data may not be quantitative, so you have to convert it.)
+
+Correlation Based Distance
+Euclidean distance is special but not the only option:
+- Considers two observations to be similar if their features are highly correlated.
+- There are various measures such as Pearson's, Spearman's Rank Correlation(permutation invariant), or Kendall's Rank Correlation.
+- Distance based on Pearson's Sample Correlation is also based on standardized entries in each observation.
+
+
+#### HC Practice R
+R Software needed:
+- *dist* or *as.dist*
+- *hclust*
+- *cutree* (this and above are included in base R)
+- R library ggdendro and *ggdendrogram* create visualization
+
+Workflow:
+- obtain pairwise dissimilarity
+- impliment HC
+- visualize dendrogram
+
+Hclust:
+-Returns Height and labels for each of the objects being clustered.
+
+Cutree:
+specify where the tree should be cut, either num clusters or height
+
+See lab for applied code.
+
+
