@@ -44,12 +44,17 @@ It is absolutely not OK to just submit your codes only. This will result in a co
  
 1.1) Give a few examples of dissimilarity measures that can be used to measure how dissimilar two observations are. What is the main disadvantage of the squared Euclidean distance as a dissimilarity measure? 
 
-1.2) Is it true that standardization of data should be done when features are measured on very different scales? Is it true that employing more features gives more accurate clustering results? Is it true that employing standardized observations gives more accurate clustering results than employing non-standardized ones? Explain each of your answers. 
+Two common dissimilarity measures are Euclidean Distance between vectors, and the Pearson Correlation Coefficient. The main disadvantage of Squared Euclidean Distance is that as the magnitude of vectors increase, the distance also increases. This is not the case with Pearson Correlation because it is a result of the angle and not the length of the vectors.
+
+1.2) Is it true that standardization of data should be done when features are measured on very different scales? Is it true that employing more features gives more accurate clustering results? Is it true that employing standardized observations gives more accurate clustering results than employing non-standardized ones? Explain each of your answers.
+
+
+
 
 
 1.3) Take $K=2$. Provide the loss function that K-means clustering tries to minimize. You need to provide the definition and meaning of each term that appears in the loss function. 
 
-The loss function that K-means tries to minimize is $W(C) = \sum_{k = 1}^{k} \sum_{x_i \text{in cluster k}} d^2(x_i, \bar{x}_k) = N_1 * S^2_1 + ... + N_k * S^2_k$. Where each summand is the inter cluster variability of the assigned observations. In essence, the loss function is measuring the similarity and dissimilarity of the points in each cluster. The k-means algoritm seeks to minimize the variance between each observation in each assigned cluster. 
+The loss function that K-means tries to minimize is $W(C) = \sum_{k = 1}^{k} \sum_{x_i \text{in cluster k}} d^2(x_i, \bar{x}_k) = N_1 * S^2_1 + ... + N_k * S^2_k$. Where each summand is the inter cluster variability of the assigned observations. In essence, the loss function is measuring the similarity and dissimilarity of the points in each cluster. The k-means algorithm seeks to minimize the variance between each observation in each assigned cluster. 
 
 
 1.4) What is the "centroid" for a cluster? Is the algorithm, Algorithm 10.1 on page 388 of the Text (which is also provided in the lecture slides), guaranteed to converge to the global minimum of the loss function? Why or why not? What does the argument `nstart` refer to in the command `kmeans`? Why is `nstart` suggested to take a relatively large value? Why do you need to set a random seed by `set.seed()` before you apply `kmeans`?
@@ -63,15 +68,21 @@ Depending on what you set the value of K (the number of clusters) to and what yo
 
 1.6) Is the true number $K_0$ of clusters in data known? When using the command `clusGap` to estimate $K_0$, what does its argument `B` refer to?   
 
+In most real world cases where the dataset is not pre-generated, the true number of clusters is unknown. When using clusGap the `B` argument refers to the number of Monte Carlo Samples to Use for bootstrapping.
+
 
 \noindent
 2. Consider hierarchical clustering.
 
 2.1) What are some advantages of hierarchical clustering over K-means clustering? What is the relationship between the dissimilarity between two clusters and the height of these clusters in the dendrogram that represents a bottom-up tree? 
 
+One Advantage of Hierarchical Clustering over K-means is that you do not have to specify the number of clusters to assign observations to. When examining the dendrogram and the height of the clusters, Observations that fuse at the bottom of the tree are similar to each other, while observations that fuse at the top of the tree end up being very different.
+
 2.2) Explain what it means by saying that "the clusters obtained at different heights from a dendrogram are nested". If a data set has two underlying clustering structures that can be obtained by two different criteria, will these two sets of clusters necessarily be nested? Explain your answer.
 
 2.3) Why is the distance based on Pearson's sample correlation not effected by the magnitude of observations in terms of Euclidean distance? What is the definition of average linkage? Why are average linkage and complete linkage preferred than single linkage in practice?
+
+The distance between the pearson sample correlation is not effected by magnitude because geometrically the Pearson Correlation is $cos(\theta)$ where $\theta$ is the angle between the two given vectors. The length of each vector has no effect on the angle and therefore doesn't effect the calculated metric. 
 
 2.4) What does the command `scale` do? Does `scale` apply row-wise or column-wise? When `scale` is applied to a variable, what will happen to the observations of the variable?
 
@@ -97,7 +108,6 @@ flights = flights %>% select(dep_delay, arr_delay, distance, air_time, month, ca
 flights = flights %>% mutate_at('month', as.factor)
 flights = na.omit(flights)
 head(flights)
-flights
 ```
 
 
@@ -118,19 +128,22 @@ flights$k3cluster = factor(k3$cluster)
 
 
 library(ggplot2)
-k3plot = ggplot(flights, aes(x = arr_delay, y = dep_delay)) + geom_point(aes(color = k3cluster, shape = carrier)) + theme_bw()
+k3plot = ggplot(flights, aes(x = air_time, y = arr_delay)) + geom_point(aes(color = k3cluster, shape = carrier)) + theme_bw() + ggtitle("3 Cluster")
 k3plot
 
-k2plot = ggplot(flights, aes(x = arr_delay, y = dep_delay)) + geom_point(aes(color = k2cluster, shape = month)) + theme_bw()
+k2plot = ggplot(flights, aes(x = air_time, y = arr_delay)) + geom_point(aes(color = k2cluster, shape = month)) + theme_bw() + ggtitle("2 Cluster")
 k2plot
 ```
+For the $K=3$ clustering, examining the plot and comparing the color of each point to the shape used, we can see that for each of the 3 colors, there are a mix of different shapes included. For example, blue has a mix of triangles(DL), squares(UA), and circles(AA). This mix of shapes and colors appear to be present for each of the 3 clusters. This indicates that the clustering likely was not successful and that based on these features, it is difficult to predict which carrier a given flight is operated by.
+
+For the $K=2$ clustering, it is a very similar situation. There are a mix of the two shapes belonging to each color. Once again indicating that predicting what month a flight occured on based on these 4 features is difficult.
 
 
 3.2) Use `set.seed(123)` to randomly extract 50 observations, and to these 50 observations, apply hierarchical clustering with average linkage. (i) Cut the dendrogram to obtain 3 clusters with leafs annotated by `carrier` names and resulting clusters colored distinctly, and report the corresponding height of cut. (ii) In addition, cut the dendrogram to obtain 2 clusters with leafs annotated by `month` numbers and resulting clusters colored distinctly, and report the corresponding height of cut. Here are some hints: say, you save the randomly extracted 50 observations into an object `ds3sd`, for these observations save their `carrier` names by keeping their object type but save `month` numbers as a `character` vector, make sure that `ds3sd` is a `matrix`, transpose `ds3sd` into `tmp`, assign to `tmp` column names with their corresponding carrier names or month numbers, and then transpose `tmp` and save it as `ds3sd`; this way, you are done assigning cluster labels to each observation in `ds3sd`; then you are ready to use the commands in the file `Plotggdendro.r` to create the desired dendrograms. 
 
 ```{r, 3.2}
 set.seed(123)
-fifty_flights = sample()
+flightsample = sample(1:dim(flights)[1], size = 50, replace = FALSE)
 
 
 ```
