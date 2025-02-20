@@ -48,7 +48,7 @@ Two common dissimilarity measures are Euclidean Distance between vectors, and th
 
 1.2) Is it true that standardization of data should be done when features are measured on very different scales? Is it true that employing more features gives more accurate clustering results? Is it true that employing standardized observations gives more accurate clustering results than employing non-standardized ones? Explain each of your answers.
 
-
+Standardizing data is a decision that should be made based on the domain knowlege of the data. While standardizing can be effective at improving the clustering results (i.e. accuracy) it can also hurt your clustering process by removing the measure of the difference in magnitude between observations.
 
 
 
@@ -86,10 +86,13 @@ The distance between the pearson sample correlation is not effected by magnitude
 
 2.4) What does the command `scale` do? Does `scale` apply row-wise or column-wise? When `scale` is applied to a variable, what will happen to the observations of the variable?
 
+The scale command is the command you use in order to standardize data. By default it will scale observations columnwise if applied to a matrix of observations.
+
 2.5) What is `hclust$height`? How do you find the height at which to cut a dendrogram in order to obtain $5$ clusters?
 
 2.6) When creating a dendrogram, what are some advantages of the command `ggdendrogram{ggdendro}` over the R base command `plot`?
 
+ggdendro will create much more aesthetic plots compared to the base command included in R.
 
 Visualizing clustering results as, e.g., done by Example 1 in "LectureNotes3_notes.pdf".
 
