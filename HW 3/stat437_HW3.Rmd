@@ -119,7 +119,7 @@ head(flights)
 
 3.1) Apply K-means with $K=2$ and $3$ respectively but all with `set.seed(1)` and `nstart=20`. For $K=3$, provide visualization of the clustering results based on true clusters given by `carrier`, whereas for $K=2$, provide visualization of the clustering results based on true clusters given by `month`. Summarize your findings based on the clustering results. You can use the same visualization scheme that is provided by Example 2 in "LectureNotes3_notes.pdf". Try visualization based on different sets of 2 features if your visualization has overlayed points.
 
-```{r, 3.1}
+```{r, 3_1}
 set.seed(1)
 #library(ElemStatLearn)
 library(cluster)
@@ -148,7 +148,7 @@ For the $K=2$ clustering, it is a very similar situation. There are a mix of the
 
 3.2) Use `set.seed(123)` to randomly extract 50 observations, and to these 50 observations, apply hierarchical clustering with average linkage. (i) Cut the dendrogram to obtain 3 clusters with leafs annotated by `carrier` names and resulting clusters colored distinctly, and report the corresponding height of cut. (ii) In addition, cut the dendrogram to obtain 2 clusters with leafs annotated by `month` numbers and resulting clusters colored distinctly, and report the corresponding height of cut. Here are some hints: say, you save the randomly extracted 50 observations into an object `ds3sd`, for these observations save their `carrier` names by keeping their object type but save `month` numbers as a `character` vector, make sure that `ds3sd` is a `matrix`, transpose `ds3sd` into `tmp`, assign to `tmp` column names with their corresponding carrier names or month numbers, and then transpose `tmp` and save it as `ds3sd`; this way, you are done assigning cluster labels to each observation in `ds3sd`; then you are ready to use the commands in the file `Plotggdendro.r` to create the desired dendrograms. 
 
-```{r, 3.2}
+```{r, 3_2}
 source("Plotggdendro.r")
 
 #(i)
