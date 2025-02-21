@@ -48,7 +48,7 @@ Two common dissimilarity measures are Euclidean Distance between vectors, and th
 
 1.2) Is it true that standardization of data should be done when features are measured on very different scales? Is it true that employing more features gives more accurate clustering results? Is it true that employing standardized observations gives more accurate clustering results than employing non-standardized ones? Explain each of your answers.
 
-Standardizing data is a decision that should be made based on the domain knowlege of the data. While standardizing can be effective at improving the clustering results (i.e. accuracy) it can also hurt your clustering process by removing the measure of the difference in magnitude between observations.
+Standardizing data is a decision that should be made based on the domain knowledge of the data. While standardizing can be effective at improving the clustering results (i.e. accuracy) it can also hurt your clustering process by removing the measure of the difference in magnitude between observations. It can have varying effects on the performance of your clustering due to the nature that important information is sometimes contained in the difference between the lengths of vectors. By standardizing them you can lose that vital information. It is not necissarily true that adding more features will give more accurate results. As the saying goes, "garbage in garbage out" if you add features that provide no extra information or contradictory information it is possible that the accuracy of your clustering could stagnate or even decrease.
 
 
 
@@ -80,21 +80,23 @@ One Advantage of Hierarchical Clustering over K-means is that you do not have to
 
 2.2) Explain what it means by saying that "the clusters obtained at different heights from a dendrogram are nested". If a data set has two underlying clustering structures that can be obtained by two different criteria, will these two sets of clusters necessarily be nested? Explain your answer.
 
+In Hc clustering the clusters are combined and split apart based on their dissimilarity meausre. Nested clusters mean that clusters at lower heights are subsets of the more broad clusters formed at higher heights. Clusters at a higher height will "contain" those at a lower level. Two clustering may not necessarily align in a nested fashion as the two different levels may not produce clusters that divide data into different groups. They might capture different aspects of data or have different definitions of similarity.
+
 2.3) Why is the distance based on Pearson's sample correlation not effected by the magnitude of observations in terms of Euclidean distance? What is the definition of average linkage? Why are average linkage and complete linkage preferred than single linkage in practice?
 
 The distance between the pearson sample correlation is not effected by magnitude because geometrically the Pearson Correlation is $cos(\theta)$ where $\theta$ is the angle between the two given vectors. The length of each vector has no effect on the angle and therefore doesn't effect the calculated metric. 
 
 2.4) What does the command `scale` do? Does `scale` apply row-wise or column-wise? When `scale` is applied to a variable, what will happen to the observations of the variable?
 
-The scale command is the command you use in order to standardize data. By default it will scale observations columnwise if applied to a matrix of observations.
+The scale command is the command you use in order to standardize data. By default it will scale observations column wise if applied to a matrix of observations. The observations of the variable to be scaled will be centered around a point commonly a distribution with mean 0 and standard deviation 1.
 
 2.5) What is `hclust$height`? How do you find the height at which to cut a dendrogram in order to obtain $5$ clusters?
 
+`hclust$height` is the height value (dissimilarity) at which clusters are merged together. To find the height at which to cut the dendrogram to obtain 5 clusters you can use the cutree method with the argument k=5 to cut the tree to contain 5 clusters.
+
 2.6) When creating a dendrogram, what are some advantages of the command `ggdendrogram{ggdendro}` over the R base command `plot`?
 
-ggdendro will create much more aesthetic plots compared to the base command included in R.
-
-Visualizing clustering results as, e.g., done by Example 1 in "LectureNotes3_notes.pdf".
+ggdendro will create much more aesthetic plots compared to the base command included in R. It also allows for further modification of plots to increase readability.
 
 
 # Applied exercises
@@ -136,6 +138,8 @@ k3plot
 
 k2plot = ggplot(flights, aes(x = air_time, y = arr_delay)) + geom_point(aes(color = k2cluster, shape = month)) + theme_bw() + ggtitle("2 Cluster")
 k2plot
+
+flights = flights %>% select(-k2cluster, -k3cluster) #remove clusters after use
 ```
 For the $K=3$ clustering, examining the plot and comparing the color of each point to the shape used, we can see that for each of the 3 colors, there are a mix of different shapes included. For example, blue has a mix of triangles(DL), squares(UA), and circles(AA). This mix of shapes and colors appear to be present for each of the 3 clusters. This indicates that the clustering likely was not successful and that based on these features, it is difficult to predict which carrier a given flight is operated by.
 
@@ -145,8 +149,32 @@ For the $K=2$ clustering, it is a very similar situation. There are a mix of the
 3.2) Use `set.seed(123)` to randomly extract 50 observations, and to these 50 observations, apply hierarchical clustering with average linkage. (i) Cut the dendrogram to obtain 3 clusters with leafs annotated by `carrier` names and resulting clusters colored distinctly, and report the corresponding height of cut. (ii) In addition, cut the dendrogram to obtain 2 clusters with leafs annotated by `month` numbers and resulting clusters colored distinctly, and report the corresponding height of cut. Here are some hints: say, you save the randomly extracted 50 observations into an object `ds3sd`, for these observations save their `carrier` names by keeping their object type but save `month` numbers as a `character` vector, make sure that `ds3sd` is a `matrix`, transpose `ds3sd` into `tmp`, assign to `tmp` column names with their corresponding carrier names or month numbers, and then transpose `tmp` and save it as `ds3sd`; this way, you are done assigning cluster labels to each observation in `ds3sd`; then you are ready to use the commands in the file `Plotggdendro.r` to create the desired dendrograms. 
 
 ```{r, 3.2}
+source("Plotggdendro.r")
+
+#extract 50 observations
 set.seed(123)
-flightsample = sample(1:dim(flights)[1], size = 50, replace = FALSE)
+flightsample_indices = sample(1:dim(flights)[1], size = 50, replace = FALSE)
+ds3sd = flights[flightsample_indices,]
+ds3sd$month = as.character(ds3sd$month)
+carrier_names = ds3sd$carrier
+ds3sd_matrix <- as.matrix(ds3sd[, c("dep_delay", "arr_delay", "distance", "air_time", "month", "carrier")])
+tmp = t(ds3sd_mat)
+colnames(tmp) = c(carrier_names, ds3sd$month)
+ds3sd = t(tmp)
+
+#apply hclust with average linkage
+hc.ave = hclust(dist(ds3sd), method="average")
+
+#(i) cut dendrogram to get 3 clusters
+flightsample$cluster.i = cutree(hc.ave, k = 3)
+hcdata = dendro_data_k(hc.ave, 3)
+p = plot_ggdendro(hcdata, direction = "tb", expand.y = 0.2)
+p
+
+
+
+
+
 
 
 ```
