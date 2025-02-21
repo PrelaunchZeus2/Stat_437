@@ -151,32 +151,49 @@ For the $K=2$ clustering, it is a very similar situation. There are a mix of the
 ```{r, 3.2}
 source("Plotggdendro.r")
 
+#(i)
 #extract 50 observations
 set.seed(123)
 flightsample_indices = sample(1:dim(flights)[1], size = 50, replace = FALSE)
 ds3sd = flights[flightsample_indices,]
 ds3sd$month = as.character(ds3sd$month)
 carrier_names = ds3sd$carrier
-ds3sd_matrix <- as.matrix(ds3sd[, c("dep_delay", "arr_delay", "distance", "air_time", "month", "carrier")])
+ds3sd_mat = as.matrix(ds3sd)
 tmp = t(ds3sd_mat)
-colnames(tmp) = c(carrier_names, ds3sd$month)
+colnames(tmp) = c(carrier_names)
 ds3sd = t(tmp)
 
 #apply hclust with average linkage
-hc.ave = hclust(dist(ds3sd), method="average")
+D = dist(ds3sd)
+hc = hclust(D, method ="average")
 
-#(i) cut dendrogram to get 3 clusters
-flightsample$cluster.i = cutree(hc.ave, k = 3)
-hcdata = dendro_data_k(hc.ave, 3)
-p = plot_ggdendro(hcdata, direction = "tb", expand.y = 0.2)
-p
+#cut dendrogram to get 3 clusters
+cutheight.i = hc$height[length(hc$height)-2]
+hcdata.i = dendro_data_k(hc, 3)
+p1 = plot_ggdendro(hcdata.i, direction = "tb", heightReferece = cutheight.i, expand.y = 0.2)
+p1
 
+#(ii)
+#get observations
+set.seed(123)
+flightsample_indices = sample(1:dim(flights)[1], size = 50, replace = FALSE)
+ds3sd = flights[flightsample_indices,]
+ds3sd$month = as.character(ds3sd$month)
+carrier_names = ds3sd$carrier
+ds3sd_mat = as.matrix(ds3sd)
+tmp = t(ds3sd_mat)
+colnames(tmp) = ds3sd$month #this time with month
+ds3sd = t(tmp)
 
+#apply hclust with average linkage
+D = dist(ds3sd)
+hc = hclust(D, method ="average")
 
-
-
-
-
+#cut into 2 clusters and plot the dendrogram
+cutheight.ii = hc$height[length(hc$height)-1]
+hcdata.ii = dendro_data_k(hc, 2)
+p2 = plot_ggdendro(hcdata.ii, direction = "tb", heightReferece= cutheight.ii, expand.y = 0.2)
+p2
 ```
 
 
