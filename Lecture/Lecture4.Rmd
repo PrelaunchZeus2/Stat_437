@@ -1,0 +1,31 @@
+---
+title: "Lec4 Notes"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Given the right scenario, frequency will converge to expected value.
+We use this principle to estimate the accuracy of classification.
+
+0-1 loss is a measure on classification performance its counting the off diagonal entries in a confusion matrix
+
+in the long run we want to minimize the expected loss. 
+
+If the true label $k$ is the same as the estimated label $\hat{G}$ then the 0-1 loss value is 0
+if the true label and estimated label are different then the loss value is 1
+
+$L(G(x), \hat{G}(X))$ The G(x) value is random in the bayesean framework (but in frequentist its deterministic) in general $\hat{G}(x)$ is also random every time.
+
+The minimizer, fortunately to minimize the expected 0-1 loss we can just minimize everything after the $E_X$
+
+Bayesans make decisions based on maximum post posterior probability.
+
+Deep learning at a simple level follows a similar principle where once you minimize entropy loss you basically end up minimizing 0-1 loss anyway.
+
+0-1 loss doesn't always work when the structure of loss is not symmetric.
+The threshold of 0.5 doesnt always work if there is an imbalance in the consequences of false negative vs false positive
