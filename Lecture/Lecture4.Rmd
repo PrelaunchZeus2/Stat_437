@@ -28,4 +28,27 @@ Bayesans make decisions based on maximum post posterior probability.
 Deep learning at a simple level follows a similar principle where once you minimize entropy loss you basically end up minimizing 0-1 loss anyway.
 
 0-1 loss doesn't always work when the structure of loss is not symmetric.
-The threshold of 0.5 doesnt always work if there is an imbalance in the consequences of false negative vs false positive
+The threshold of 0.5 doesn't always work if there is an imbalance in the consequences of false negative vs false positive
+
+if you change the threshold you likely aren't using 0-1 loss anymore.
+
+When using bayes classifier multi-class the process is mostly the same, except that it has different thresholds for class assignment based on posterior probability
+
+In classification there are many methods, but the Bayes method is the peak
+
+## 4A
+#### k-nearest neighbor (kNN)
+
+Nearest Neighbor Methods
+- a class of classification methods and belong to the family of supervised learning methods, where methods are trained from observations that have class labels
+- classify a new observation to a class using features of its neighboring observations
+- can be regarded as estimating the unknown conditional probabilities that are used by the Bayes classifier.
+
+In our case we always measure a fixed number of features and worth with that exact number, in the real world this is not always the case.
+
+KNN algorithm:
+1. Specify a positive integer k as the number of neighbors
+1. Let $K_N(X)$ be the neighborhood of x consisting of $k$ points $x_i$. Compute the average label as $\bar{Y}$.
+1. Specify a threshold $\beta\in(0,1)$ and estimate the class label of $x$ as $\hat{Y} = 1 \text{ if } \bar{Y}(x) > \beta \text{ or } \bar{Y}(x) = 0 \text{ otherwise.}$
+
+See time series: moving average operator ~ convolution ~ blur imaging
