@@ -52,3 +52,14 @@ KNN algorithm:
 1. Specify a threshold $\beta\in(0,1)$ and estimate the class label of $x$ as $\hat{Y} = 1 \text{ if } \bar{Y}(x) > \beta \text{ or } \bar{Y}(x) = 0 \text{ otherwise.}$
 
 See time series: moving average operator ~ convolution ~ blur imaging
+
+Your neighborhood changes shape as you move it no matter how dense or sparsely populated your observations are.
+You don't always have to use $\frac{1}{K}$ for the weights of your observations. Sometimes it can be worth weighting them by distance from the point you are examining.
+
+The average label will be 0 or 1 when either a. all neighbors are 0 or 1 b. there is only 1 neighbor.
+
+in the Bayesian scheme you set $\beta = \frac{1}{2}$ and use the $\frac{1}{k}$ to approximate Bayes rule.
+The average function is an unbiased estimator of $Pr(Y_i = 1)$, in other words the average is estimating the probability that the class label is 1.
+
+In the real world, all we have is frequency. We never have a real idea of what the actual probabilities are going to be. Take weather prediction, we don't know when its going to rain but we know the past frequency of rain.
+
