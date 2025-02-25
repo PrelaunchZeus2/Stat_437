@@ -22,59 +22,58 @@ opts_chunk$set(fig.align="center",tidy.opts=list(width.cutoff=60),tidy=TRUE)
 
 Please show your work and submit your computer codes in order to get points. Providing correct answers without supporting details does not receive full credits. This HW covers
 
-- Bayes classifier
-- kNN classifier
+-   Bayes classifier
+-   kNN classifier
 
 For an assignment or project, you DO NOT have to submit your answers or reports using typesetting software. However, your answers must be well organized and well legible for grading. Please upload your answers in a document to the course space. Specifically, if you are not able to knit a .Rmd/.rmd file into an output file such as a .pdf, .doc, .docx or .html file that contains your codes, outputs from your codes, your interpretations on the outputs, and your answers in text (possibly with math expressions), please organize your codes, their outputs and your answers in a document in the format given below:
 
-```
+```         
 Problem or task or question ... 
 Codes ...
 Outputs ...
 Your interpretations ...
 ```
 
-It is absolutely not OK to just submit your codes only. This will result in a considerable loss of points on your assignments or projects. 
+It is absolutely not OK to just submit your codes only. This will result in a considerable loss of points on your assignments or projects.
 
 # Conceptual exercises: I (Bayes classifier)
 
 \noindent
-1. This exercise is on Bayes theorem and Bayes classifier. 
- 
+1. This exercise is on Bayes theorem and Bayes classifier.
+
 1.1) State clearly the definition of the 0-1 loss function. Can this function be used in multi-class classification problems?
+
+The 0-1 loss function is a measure used to evaluate the accuracy of a two class classification task. It operates as a function that returns one of two possible values, 0 or 1. Given a true class label $G(x)$ and a predicted class value $\hat{G}(x)$ it returns $0$ if $(G(x) = \hat{G}(x))$, meaning the predicted label matches the true label(correctly classified) and $1$ otherwise meaning the predicted label does not match the true label (incorrectly classified).
+
+0-1 loss can be used in multi-class classification problems because very simply, it just counts the number of classifications errors made. However it is not the best method to use because it is difficult to optimize.
 
 1.2) Let $Y$ be the random variable for the class label of a random vector $X$, such that $Y \in \mathcal{G}=\{1,\ldots, K\}$ where $K \ge 2$ is the number of classes. Let $\hat{Y}$ be the estimated class label for $X$. Given the prior $\Pr(Y=k)=\pi_k, k \in \mathcal{G}$ on Class $k$ and the conditional density $f_k(x)$ of $X$ when it comes from Class $k$. Provide the formula to obtain the posterior $\Pr(Y=k|X=x)$, which is essentially the Bayes theorem. What is the Bayes classifier and how does it classify a new observation $x_0$ from $X$? Is the decision boundary of the Bayes classifier linear or quadratic in $X$? Explain (but do not have to mathematically prove) why the Bayes classifier minimizes the expected 0-1 loss. Note the a proof of the fact that the Bayes classifier minimizes the expected 0-1 loss is given in "LectureNotes4_notes.pdf". You should not copy and paste the proof. Instead, please provide the explanation based on your understanding of the proof.
 
-1.3) If $K=2$ in subquestion 1.2), what is the threshold value on $\Pr(Y=1|X=x_0)$ that is used by the Bayes classifier to determine the class label for $x_0$? Suppose you use a different threshold value on $\Pr(Y=1|X=x_0)$ to classify $x_0$, is the corresponding classifier still the Bayes classifier, and is the corresponding loss function still the 0-1 loss? Explain your answer. Provide a scenario where to classify an observation a different threshold value is more sensible than the threshold value used by the Bayes classifier.  
+1.3) If $K=2$ in subquestion 1.2), what is the threshold value on $\Pr(Y=1|X=x_0)$ that is used by the Bayes classifier to determine the class label for $x_0$? Suppose you use a different threshold value on $\Pr(Y=1|X=x_0)$ to classify $x_0$, is the corresponding classifier still the Bayes classifier, and is the corresponding loss function still the 0-1 loss? Explain your answer. Provide a scenario where to classify an observation a different threshold value is more sensible than the threshold value used by the Bayes classifier.
 
-1.4) If $K=2$ in subquestion 1.2), $\pi_1=0.6$, $f_1(x) \sim \text{Gaussian}(0,1)$ and $f_2(x) \sim \text{Gaussian}(2,1)$ and $x_0=1.5$. Compute $\Pr(Y=1|X=x_0)$ and use the Bayes classifier to classify $x_0$. 
-
-
+1.4) If $K=2$ in subquestion 1.2), $\pi_1=0.6$, $f_1(x) \sim \text{Gaussian}(0,1)$ and $f_2(x) \sim \text{Gaussian}(2,1)$ and $x_0=1.5$. Compute $\Pr(Y=1|X=x_0)$ and use the Bayes classifier to classify $x_0$.
 
 # Conceptual exercises: II ($k$-NN classifier)
 
 \noindent
-2. Given the training set $\mathcal{T}$ of $n$ observations $(x_{1},y_{1}),\ldots,(x_{n},y_{n})$, where $y_i$ is the class label of observation $x_i$ and $y_i \in \mathcal{G}=\{1,\ldots,K\}$ for $K \ge 2$, consider $k$-NN classifier, where $k$ is the neighborhood size.  
+2. Given the training set $\mathcal{T}$ of $n$ observations $(x_{1},y_{1}),\ldots,(x_{n},y_{n})$, where $y_i$ is the class label of observation $x_i$ and $y_i \in \mathcal{G}=\{1,\ldots,K\}$ for $K \ge 2$, consider $k$-NN classifier, where $k$ is the neighborhood size.
 
-2.1) Describe how the decision boundary (such as its smoothness and shape) of $k$-NN classifier changes as $k$ changes. 
+2.1) Describe how the decision boundary (such as its smoothness and shape) of $k$-NN classifier changes as $k$ changes.
 
 2.2) Explain why the training error of $1$-NN classifier is $0$. Provide an estimator of the test error of a classifier and explain why it can be used as such an estimator. Is it true that a large $k$ leads to a $k$-NN classifier with smaller test error? Can the test error of a $k$-NN classifier be equal to the test error of the Bayes classifier? When $k$ is large and $k/n$ is small, what is a $k$-NN classifier approximately estimating?
 
-2.3) When there are $K \ge 2$ classes, how does a $k$-NN classifier classify a test observation $x_0$? 
+2.3) When there are $K \ge 2$ classes, how does a $k$-NN classifier classify a test observation $x_0$?
 
 2.4) When should data be standardized before applying a $k$-NN classifier? When standardizing data, do we standardize each observation or each feature?
 
-2.5) Using your understanding of Example 3 in "LectureNotes4b_notes.pdf", provide a step-by-step guide on how to choose an optimal $k$ for $k$-NN classifier using cross-validation. You can provide such as guide in the form of "pseudocode" (see, e.g., https://en.wikipedia.org/wiki/Pseudocode for some details on pseudocode). Suppose the training set has few observations, can you still perform cross-validation in order to choose an optimal $k$? Explain your answer. (Hint: for the 2nd part, think about if having more observations helps better estimate test error.)
-
-
+2.5) Using your understanding of Example 3 in "LectureNotes4b_notes.pdf", provide a step-by-step guide on how to choose an optimal $k$ for $k$-NN classifier using cross-validation. You can provide such as guide in the form of "pseudocode" (see, e.g., <https://en.wikipedia.org/wiki/Pseudocode> for some details on pseudocode). Suppose the training set has few observations, can you still perform cross-validation in order to choose an optimal $k$? Explain your answer. (Hint: for the 2nd part, think about if having more observations helps better estimate test error.)
 
 # Applied exercises: I ($k$-NN classifier)
 
-
 \noindent
-7. Please refer to the NYC flight data `nycflights13` that has been discussed in the lecture notes and whose manual can be found at https://cran.r-project.org/web/packages/nycflights13/index.html. We will use `flights`, a tibble from `nycflights13`.
+7. Please refer to the NYC flight data `nycflights13` that has been discussed in the lecture notes and whose manual can be found at <https://cran.r-project.org/web/packages/nycflights13/index.html>. We will use `flights`, a tibble from `nycflights13`.
 
-Please use `set.seed(123)` for the whole of this exercise. Randomly select from `flights` for each of the 3 `carrier` "UA", "AA" or "DL" 500 observations for the 3 features `dep_delay`, `arr_delay` and `distance`. Let us try to see if we can use the 3 features to identify if an observation belongs a specific carrier. The following tasks and questions are based on the extracted observations. Note that you need to remove rows with `na`'s from the extracted observations. 
+Please use `set.seed(123)` for the whole of this exercise. Randomly select from `flights` for each of the 3 `carrier` "UA", "AA" or "DL" 500 observations for the 3 features `dep_delay`, `arr_delay` and `distance`. Let us try to see if we can use the 3 features to identify if an observation belongs a specific carrier. The following tasks and questions are based on the extracted observations. Note that you need to remove rows with `na`'s from the extracted observations.
 
 ```{r, select data}
 set.seed(123)
@@ -88,29 +87,25 @@ flights = flights[FiveHundredIndices,] #get 500 randomly (with seed 123) sampled
 
 ```
 
-
-7.1) First, you need to standardize the features since they are on very different scales. Then randomly split the observations into a training set that contains 70% of the observations and a test set that contains the remaining observations. 
+7.1) First, you need to standardize the features since they are on very different scales. Then randomly split the observations into a training set that contains 70% of the observations and a test set that contains the remaining observations.
 
 ```{r scale and split training test}
 flights = scale(flights) #scale observations
-test = None
-train = none
 
+train_size = floor(0.7 * nrow(data))
+train_indices = sample(seq_len(nrow(data)), size = train_size)
+
+#make train test sets with indices
+train = flights[train_indices,]
+test = flights[-train_indices,]
 ```
-
-
-
 
 7.2) Consider the observations as forming 3 classes that are determined by `carrier`. To the training set, apply $10$ fold cross-validation to $k$-NN classifier with features `arr_delay`, `dep_delay`, and `distance` to determine the optimal $k$ from the values $\{1,\ldots,15\}$. Apply the optimal $k$-NN to the test set, provide the classification table and the overall error rate, and provide visualization of the classification results. Do you think the error rate is reasonable? Explain your answer. (Hint: you can follow the strategy provided by Example 3 in "LectureNotes4b_notes.pdf". )
 
-
-7.3) Note that your have standardized the features `arr_delay`, `dep_delay`, and `distance`. However, with the unstandardized features, you would surely know that none of them follows a Gaussian distribution no matter with respect to which class (i.e., `carrier`) you look at their observations since these features have non-negative values (whereas a Gaussian distribution can generate negative values). Again, the 3 classes are determined by `carrier`. So, you will apply QDA based on the 3 standardized the features to the training set to train the model, and then apply the trained model to the test set (that contains the 3 standardized the features) to classify its observations. 
+7.3) Note that your have standardized the features `arr_delay`, `dep_delay`, and `distance`. However, with the unstandardized features, you would surely know that none of them follows a Gaussian distribution no matter with respect to which class (i.e., `carrier`) you look at their observations since these features have non-negative values (whereas a Gaussian distribution can generate negative values). Again, the 3 classes are determined by `carrier`. So, you will apply QDA based on the 3 standardized the features to the training set to train the model, and then apply the trained model to the test set (that contains the 3 standardized the features) to classify its observations.
 
 (7.3a) First, check if the Gaussian assumption is satisfied. For this, note that if the standardized features `arr_delay`, `dep_delay`, and `distance` follow a trivariate Gaussian distribution for each individual class, then any pair among the 3 standardized features follows a bivariate Gaussian distribution for each individual class.
 
 (7.3b) Apply the estimated (i.e., trained) QDA model to the test set, provide the estimated mixing proportion and estimated mean vector for each class, and provide the classification table. If you randomly pick an observation on the 3 standardized features, is it approximately equally likely to belong to each of the 3 carriers? (You do not need to mathematically prove your answer. However, think along this line: we are testing the equality of 3 population proportions, and each estimated population proportion is based on around 350 observations, which approximately can be done via a z-test since the central limit theorem is in effect.) How is the performance of QDA on this test set? Explain your answers.
 
 (7.3c) Extract observations that are for "UA" or "DL" from the training set and the test set, respectively, to form a new training set and a new subset, so that there are now 2 classes "UA" and "DL". Apply QDA to the new training set and then apply the trained model to the new test set. Report the overall error rate on the test set, provide the ROC curve, and calculate the AUC. How is the performance of QDA on this test set? Explain your answer.
-
-
-
