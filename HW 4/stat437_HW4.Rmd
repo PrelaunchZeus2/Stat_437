@@ -64,6 +64,8 @@ There are certain scenarios where a non-50/50 threshold may be desirable. The on
 
 2.1) Describe how the decision boundary (such as its smoothness and shape) of $k$-NN classifier changes as $k$ changes.
 
+As the number of nearest neighbors denoted by $k$ changes, the decision boundary will change in resolution and smoothness. As the value of $k$ increases, the decision boundary will become smoother, for example having fewer jagged edges or points. As $k$ the boundary will become more volatile and rough. Except for at $k = 0 \text{ and } k=n$. $k = 0$ simply just isn't possible because the solution set would be empty, at $k=n$ there would not be a decision boundary because each point would be assigned to the class that has the most observations.
+
 2.2) Explain why the training error of $1$-NN classifier is $0$. Provide an estimator of the test error of a classifier and explain why it can be used as such an estimator. Is it true that a large $k$ leads to a $k$-NN classifier with smaller test error? Can the test error of a $k$-NN classifier be equal to the test error of the Bayes classifier? When $k$ is large and $k/n$ is small, what is a $k$-NN classifier approximately estimating?
 
 2.3) When there are $K \ge 2$ classes, how does a $k$-NN classifier classify a test observation $x_0$?
@@ -84,24 +86,17 @@ set.seed(123)
 library(dplyr)
 library(nycflights13)
 flights = na.omit(flights)
-flights = flights %>% filter(carrier %in% c('UA', 'AA', 'DL')) #filter to include only the 3 carriers
-flights = flights %>% select(dep_delay, arr_delay, distance, carrier) #get the three features
-FiveHundredIndices = sample(1:dim(flights)[1], size = 500, replace = FALSE)
-flights = flights[FiveHundredIndices,] #get 500 randomly (with seed 123) sampled flight observations
+flights = flights %>% filter(carrier %in% c('UA', 'AA', 'DL'))
+flights = flights %>% select(dep_delay, arr_delay, distance)
+fivehundredindices = sample(1:dim(flights)[1], size = 500, replace = FALSE)
+flights = flights[fivehundredindices,]
 
 ```
 
 7.1) First, you need to standardize the features since they are on very different scales. Then randomly split the observations into a training set that contains 70% of the observations and a test set that contains the remaining observations.
 
 ```{r scale and split training test}
-flights = scale(flights) #scale observations
-
-train_size = floor(0.7 * nrow(data))
-train_indices = sample(seq_len(nrow(data)), size = train_size)
-
-#make train test sets with indices
-train = flights[train_indices,]
-test = flights[-train_indices,]
+scale(flights)
 ```
 
 7.2) Consider the observations as forming 3 classes that are determined by `carrier`. To the training set, apply $10$ fold cross-validation to $k$-NN classifier with features `arr_delay`, `dep_delay`, and `distance` to determine the optimal $k$ from the values $\{1,\ldots,15\}$. Apply the optimal $k$-NN to the test set, provide the classification table and the overall error rate, and provide visualization of the classification results. Do you think the error rate is reasonable? Explain your answer. (Hint: you can follow the strategy provided by Example 3 in "LectureNotes4b_notes.pdf". )
