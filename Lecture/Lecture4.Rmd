@@ -1,7 +1,6 @@
 ---
 title: "Lec4 Notes"
 author: "John Salmon"
-date: "`r Sys.Date()`"
 output: html_document
 ---
 
@@ -70,3 +69,13 @@ A kNN method needs:
 kNN is non-parametric, it does not assume a distribution for the observations.
 Unless otherwise noted, Euclidean distance will be used to measure how close the observations are and when there are 2 classes the threshold on the average label will be 0.5
 
+when charting the decision boundary you bound the chart based on the maximum and minimum values of the features of your data.
+
+Classifying observations gets easier as you move away from the decision boundary.
+Often there are 3 regions that are identified, High performance, Low performance, and No performance where performance lowers as you get closer and closer to the decision boundary.
+
+2 class classification problem the decision boundary is ${x \in \mathscr{X}: \hat{y}(x) = \frac{1}{2} \text{ where } \hat{y} = \frac{1}{k}\sum^{}_{x_i \in n(x)}y_i}$
+
+As you increase K in kNN the decision boundary will become smoother. 
+
+Study should be Replicate-able(?), Random, and Homogeneous. 
