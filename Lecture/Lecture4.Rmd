@@ -79,3 +79,8 @@ Often there are 3 regions that are identified, High performance, Low performance
 As you increase K in kNN the decision boundary will become smoother. 
 
 Study should be Replicate-able(?), Random, and Homogeneous. 
+
+One of the most common error measuring types is 0-1 loss. 
+
+
+
