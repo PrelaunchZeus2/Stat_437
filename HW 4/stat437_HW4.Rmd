@@ -68,7 +68,13 @@ As the number of nearest neighbors denoted by $k$ changes, the decision boundary
 
 2.2) Explain why the training error of $1$-NN classifier is $0$. Provide an estimator of the test error of a classifier and explain why it can be used as such an estimator. Is it true that a large $k$ leads to a $k$-NN classifier with smaller test error? Can the test error of a $k$-NN classifier be equal to the test error of the Bayes classifier? When $k$ is large and $k/n$ is small, what is a $k$-NN classifier approximately estimating?
 
+When $k = 1$ the points nearest neighbor will always be itself. While training the error will be zero because the classification is based on the known class of each single point, and each point will always be assigned correctly. In order to provide an estimate of the test error of a classifier, we have to use a training and testing set often employing cross validation. 
+
+In general, increasing the value of $k$ does not guarantee that the test error of the model will decrease. 
+
 2.3) When there are $K \ge 2$ classes, how does a $k$-NN classifier classify a test observation $x_0$?
+
+
 
 2.4) When should data be standardized before applying a $k$-NN classifier? When standardizing data, do we standardize each observation or each feature?
 
@@ -87,16 +93,19 @@ library(dplyr)
 library(nycflights13)
 flights = na.omit(flights)
 flights = flights %>% filter(carrier %in% c('UA', 'AA', 'DL'))
-flights = flights %>% select(dep_delay, arr_delay, distance)
+flights = flights %>% select(dep_delay, arr_delay, distance, carrier)
 fivehundredindices = sample(1:dim(flights)[1], size = 500, replace = FALSE)
 flights = flights[fivehundredindices,]
-
+print(flights)
 ```
 
 7.1) First, you need to standardize the features since they are on very different scales. Then randomly split the observations into a training set that contains 70% of the observations and a test set that contains the remaining observations.
 
 ```{r scale and split training test}
-scale(flights)
+Y = flights$carrier
+X = flights[,1:3]
+
+
 ```
 
 7.2) Consider the observations as forming 3 classes that are determined by `carrier`. To the training set, apply $10$ fold cross-validation to $k$-NN classifier with features `arr_delay`, `dep_delay`, and `distance` to determine the optimal $k$ from the values $\{1,\ldots,15\}$. Apply the optimal $k$-NN to the test set, provide the classification table and the overall error rate, and provide visualization of the classification results. Do you think the error rate is reasonable? Explain your answer. (Hint: you can follow the strategy provided by Example 3 in "LectureNotes4b_notes.pdf". )

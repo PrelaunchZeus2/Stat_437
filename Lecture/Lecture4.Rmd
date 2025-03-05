@@ -82,5 +82,38 @@ Study should be Replicate-able(?), Random, and Homogeneous.
 
 One of the most common error measuring types is 0-1 loss. 
 
+The training error is going to be an accurate estimation of the expected 0-1 loss if you have numerous quality observations. 
+
+#### Training error and testing error discussion
+
+Issues with data splitting
+1. smaller sample size for training.
+1. how do you split the training set
+
+It may not be correct to assume that you can use the training error in order to conclude something about the test error.
+
+Regression Heading paper - might say something about how to skip finding test error in specific circumstances, there is not a general solution.
+
+$\text{logit}(E(Y(X=x))) = f(x)$ transformed into
+
+John D. Storey statistical genomics lab.
+
+Perceptron - simplest neural network in 1960's
+with multi-layer perceptrons the training error can be close to 0 and test erroor can also be close to 0. However they were not able to explain it. 
+
+What is the relationship between training error and test error. In the modern era, there is no relationship, when training error is always 0 the test error will just be close to 0. In a modern philosophy the training error will always be 0. As models get larger and larger, the training error begins to say less and less about the testing error.
+
+Fit without fear paradigm.
+
+Why is the training error of a 1-nearest neighbor always 0.
+
+Crossvalidation for kNN often underestimates the test error which means you are overconfident in the accuracy of your model.
+In the real world, we want to minimize test error, however we don't know the truth in reality so we have to estimate the test error.
+
+When using Cross-validation to find the optimal value of k, the sample size needs to be large otherwise there will not be sufficient evidence to select the proper value for K.
+
+kNN breaks down as dimensionality increases because there are more "directions" for data to be distributed. This causes the probability of finding an observation in a given neighborhood size to trend to 0. This is the `Curse of Dimensionality for Classification` the more features/dimensions there are the more space there is for observations to lie in. 
+
+If you chose how the data is generated or sampled you can alleviate this problem because you can create regions where the concentration of observations is high enugh that you avid the 0 probability.
 
 
