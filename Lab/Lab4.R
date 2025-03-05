@@ -123,7 +123,8 @@ length(testLabels)
 testLabels
 table(knn4eg2,testLabels)
 # classification error
-sum(1- as.numeric(knn4eg2==testLabels))/length(testLabels)
+sum(1- as.numeric(knn4eg2==testLabels))/length(testLabels) #easieest way too compute classification error
+
 # k-nearest neighbor (kNN) classifiers: Example 3
 library(class); dim(iris)
 iris[1,]
@@ -141,7 +142,8 @@ folds=sample(1:m,nrow(trainingSet),replace=TRUE)
 folds[1:10]
 which(folds==1) # obs. id's in fold 1
 table(folds)
-k=2 # k for kNN; m=10
+k=2 # k for kNN; 
+m=10
 testError1 = double(m) # store test error for each fold s
 for (s in 1:m) { # loop through s=1,...,m
   trainingTmp =trainingSet[folds !=s,]
