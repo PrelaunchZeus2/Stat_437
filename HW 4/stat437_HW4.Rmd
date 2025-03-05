@@ -53,7 +53,7 @@ The 0-1 loss function is a measure used to evaluate the accuracy of a two class 
 
 The threshold value is the value you set to have your classifier make a decision based on the probability. In the Bayesian scheme this is commonly set to $0.5 \text{ or } \frac{1}{2}$. This means that if the probability of the observation being in class a is above the threshold it will be assigned too class a, if the probability of the observation being in class a is below the threshold, it will be assigned to the other class. If you use a different threshold value the corresponding classifier is no longer in the Bayesian scheme which operates with a threshold of 0.5. The loss function would still be 0-1 loss because it is not effected by the threshold and simply counts the number of classified observations.
 
-There are certain scenarios where a non-50/50 threshold may be desirable. The one that comes to mind for me is cases where you want to be extra sensitive to false positives or negatives. In the case where you are modeling whether or not there is enough evidence to search a passengers luggage because of suspicion of an explosive device, you likely would want a lower threshold to trigger a search because allowing an explosive device to slip through could cause a mass casualty event. 
+There are certain scenarios where a non-50/50 threshold may be desirable. The one that comes to mind for me is cases where you want to be extra sensitive to false positives or negatives. In the case where you are modeling whether or not there is enough evidence to search a passengers luggage because of suspicion of an explosive device, you likely would want a lower threshold to trigger a search because allowing an explosive device to slip through could cause a mass casualty event.
 
 1.4) If $K=2$ in subquestion 1.2), $\pi_1=0.6$, $f_1(x) \sim \text{Gaussian}(0,1)$ and $f_2(x) \sim \text{Gaussian}(2,1)$ and $x_0=1.5$. Compute $\Pr(Y=1|X=x_0)$ and use the Bayes classifier to classify $x_0$.
 
@@ -68,13 +68,15 @@ As the number of nearest neighbors denoted by $k$ changes, the decision boundary
 
 2.2) Explain why the training error of $1$-NN classifier is $0$. Provide an estimator of the test error of a classifier and explain why it can be used as such an estimator. Is it true that a large $k$ leads to a $k$-NN classifier with smaller test error? Can the test error of a $k$-NN classifier be equal to the test error of the Bayes classifier? When $k$ is large and $k/n$ is small, what is a $k$-NN classifier approximately estimating?
 
-When $k = 1$ the points nearest neighbor will always be itself. While training the error will be zero because the classification is based on the known class of each single point, and each point will always be assigned correctly. In order to provide an estimate of the test error of a classifier, we have to use a training and testing set often employing cross validation. This involves running multiple tasks on different folds of the data set to obtain an error rate, these error rates are then averaged.  
+When $k = 1$ the points nearest neighbor will always be itself. While training the error will be zero because the classification is based on the known class of each single point, and each point will always be assigned correctly. In order to provide an estimate of the test error of a classifier, we have to use a training and testing set often employing cross validation. This involves running multiple tasks on different folds of the data set to obtain an error rate, these error rates are then averaged.
 
-In general, increasing the value of $k$ does not guarantee that the test error of the model will decrease. 
+In general, increasing the value of $k$ does not guarantee that the test error of the model will decrease. A larger value of K will reduce the variance but also increases the bias. The optimal k value is one where the classifier has a good balance between its variance and its bias.
+
+The Bayes classifier is the most optimal classification algorithm. The test error of the kNN classifier can approach the Bayes error as the sample size grows towards infinity and the value of $k$ is appropriately assigned, however in the real world where we don't have infinite observations the kNN classifier will have a higher test error.
+
+When k is large but $\frac{k}{n}$ is small, the classifier is approximating the Bayes Posterior Probability $P(Y|X)$, this means that it is estimating the probability distribution of class labels rather than making decisions based on the neighbors values.
 
 2.3) When there are $K \ge 2$ classes, how does a $k$-NN classifier classify a test observation $x_0$?
-
-
 
 2.4) When should data be standardized before applying a $k$-NN classifier? When standardizing data, do we standardize each observation or each feature?
 
