@@ -141,8 +141,9 @@ y_test <- as.data.frame(y[-train_index])
 ```
 
 7.2) Consider the observations as forming 3 classes that are determined by `carrier`. To the training set, apply $10$ fold cross-validation to $k$-NN classifier with features `arr_delay`, `dep_delay`, and `distance` to determine the optimal $k$ from the values $\{1,\ldots,15\}$. Apply the optimal $k$-NN to the test set, provide the classification table and the overall error rate, and provide visualization of the classification results. Do you think the error rate is reasonable? Explain your answer. (Hint: you can follow the strategy provided by Example 3 in "LectureNotes4b_notes.pdf". )
-```{r, k = 20 fold validation}
+```{r, knn}
 library(class)
+library(ggplot2)
 m = 10 #10 folds
 folds = sample(1:m, nrow(x_train)/m, replace = TRUE)
 table(folds) #check fold balance
@@ -168,17 +169,21 @@ colnames(testErrors) = paste("k=", 1:kmax,sep="")
 rownames(testErrors)=c("mean(TestError)", "sd(TestError)")
 print(testErrors)
 
-best_k = which(testErrors[1,] == min(testErrors[1,]))
-best_knn = knn(x_train, x_test, y_train, best_k)
-n_errors = sum(1 - as.numeric(best_knn==y_test))
+khat = which(testErrors[1,] == min(testErrors[1,]))
+cl = y_train[,1]
+best_knn = knn(x_train, x_test, cl, khat)
+n_errors = sum(1 - as.numeric(as.data.frame(best_knn)==y_test))
 best_test_error = n_errors/length(y_test)
 print(best_test_error)
-x_test$carrier = y_test
+```
+```{r, knn plotting}
+x_test$carrier = factor(y_test[,1])
 x_test$estimated_carrier = best_knn
 
-p = ggplot(x_test, aes(distance, arr_delay)) + geom_point(aes(shape = estimated_carrier, color = carrier)) + theme_bw()
-
+p = ggplot(x_test, aes(arr_delay, dep_delay)) + geom_point(aes(shape = estimated_carrier, color = carrier)) + theme_bw()
+p
 ```
+
 7.3) Note that your have standardized the features `arr_delay`, `dep_delay`, and `distance`. However, with the unstandardized features, you would surely know that none of them follows a Gaussian distribution no matter with respect to which class (i.e., `carrier`) you look at their observations since these features have non-negative values (whereas a Gaussian distribution can generate negative values). Again, the 3 classes are determined by `carrier`. So, you will apply QDA based on the 3 standardized the features to the training set to train the model, and then apply the trained model to the test set (that contains the 3 standardized the features) to classify its observations.
 
 (7.3a) First, check if the Gaussian assumption is satisfied. For this, note that if the standardized features `arr_delay`, `dep_delay`, and `distance` follow a trivariate Gaussian distribution for each individual class, then any pair among the 3 standardized features follows a bivariate Gaussian distribution for each individual class.
