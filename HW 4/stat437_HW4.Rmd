@@ -180,7 +180,8 @@ print(best_test_error)
 x_test$carrier = factor(y_test[,1])
 x_test$estimated_carrier = best_knn
 
-p = ggplot(x_test, aes(arr_delay, dep_delay)) + geom_point(aes(shape = estimated_carrier, color = carrier)) + theme_bw()
+p = ggplot(x_test, aes(arr_delay, dep_delay)) + 
+  geom_point(aes(shape = estimated_carrier, color = carrier)) + theme_bw()
 p
 ```
 
