@@ -49,13 +49,27 @@ The 0-1 loss function is a measure used to evaluate the accuracy of a two class 
 
 1.2) Let $Y$ be the random variable for the class label of a random vector $X$, such that $Y \in \mathcal{G}=\{1,\ldots, K\}$ where $K \ge 2$ is the number of classes. Let $\hat{Y}$ be the estimated class label for $X$. Given the prior $\Pr(Y=k)=\pi_k, k \in \mathcal{G}$ on Class $k$ and the conditional density $f_k(x)$ of $X$ when it comes from Class $k$. Provide the formula to obtain the posterior $\Pr(Y=k|X=x)$, which is essentially the Bayes theorem. What is the Bayes classifier and how does it classify a new observation $x_0$ from $X$? Is the decision boundary of the Bayes classifier linear or quadratic in $X$? Explain (but do not have to mathematically prove) why the Bayes classifier minimizes the expected 0-1 loss. Note the a proof of the fact that the Bayes classifier minimizes the expected 0-1 loss is given in "LectureNotes4_notes.pdf". You should not copy and paste the proof. Instead, please provide the explanation based on your understanding of the proof.
 
+Posterior Probability Formula:
+
+$Pr(Y = K | X = x) = \frac{\pi_kf_k(x)}{\sum^K_{j=1}\pi_j f_j(x)}$
+
+The Bayes Classifier is the classification algorithm that assigns observations to a class based on their calculated posterior probability of belonging to that class. The class with the highest probability of belonging to is the one that is chosen by the classifier. The shape of the decision boundary is based on the class densities and their covariance properties. The decision boundary is linear if the class densities are Gaussian and have equal covariance matrices. The Bayes Classifier minimizes the expected 0-1 loss because of the nature of the algorithm and 0-1 loss function. For any given x there are possible class labels each with a different probability of being assigned. The best strategy for minimizing the chance of misclassification is to pick the class with the highest likelihood of being correct. This is essentially what the Bayes classifier does and is also why it is considered the theoretical best classification method.
+
 1.3) If $K=2$ in subquestion 1.2), what is the threshold value on $\Pr(Y=1|X=x_0)$ that is used by the Bayes classifier to determine the class label for $x_0$? Suppose you use a different threshold value on $\Pr(Y=1|X=x_0)$ to classify $x_0$, is the corresponding classifier still the Bayes classifier, and is the corresponding loss function still the 0-1 loss? Explain your answer. Provide a scenario where to classify an observation a different threshold value is more sensible than the threshold value used by the Bayes classifier.
 
-The threshold value is the value you set to have your classifier make a decision based on the probability. In the Bayesian scheme this is commonly set to $0.5 \text{ or } \frac{1}{2}$. This means that if the probability of the observation being in class a is above the threshold it will be assigned too class a, if the probability of the observation being in class a is below the threshold, it will be assigned to the other class. If you use a different threshold value the corresponding classifier is no longer in the Bayesian scheme which operates with a threshold of 0.5. The loss function would still be 0-1 loss because it is not effected by the threshold and simply counts the number of classified observations.
+The threshold value is the value that determines how the classifier makes a decision. In the case where $K = 2$ the threshold should be set at $Pr(Y=1|X=x_0) = 0.5$ meaning that the classifier assigns observations based on which ever class has a probability greater than 0.5 or 50%. In the case where it is an exact 50/50 split, its often just assigned to class 1 or it can simply be not classified at all depending on how the user sets up the algorithm.
 
-There are certain scenarios where a non-50/50 threshold may be desirable. The one that comes to mind for me is cases where you want to be extra sensitive to false positives or negatives. In the case where you are modeling whether or not there is enough evidence to search a passengers luggage because of suspicion of an explosive device, you likely would want a lower threshold to trigger a search because allowing an explosive device to slip through could cause a mass casualty event.
+If you choose a different threshold value than 50/50 it is no longer considered the Bayes Classifier because it is not choosing the class based on which one has the highest probability. The corresponding loss function would also not be considered the 0-1 loss function and instead be replaced with a different loss that might be more sensitive to one type of error such as a false positive or false negative, which take on more meaning in this new case. Once scenario where utilizing a different threshold value may be useful is in cases where false positives and false negatives have different consequences, or the stakes of being incorrect or correct are higher. Such as in airport security where missing an explosive device smuggled in a passengers luggage could cause a mass casualty event while falsely identifying a dangerous device in a passengers luggage leads to a search. In this case you may adjust the threshold to trigger a search in any case of doubt to make sure no explosive devices are brought onto passenger airplanes.
 
 1.4) If $K=2$ in subquestion 1.2), $\pi_1=0.6$, $f_1(x) \sim \text{Gaussian}(0,1)$ and $f_2(x) \sim \text{Gaussian}(2,1)$ and $x_0=1.5$. Compute $\Pr(Y=1|X=x_0)$ and use the Bayes classifier to classify $x_0$.
+
+$f_1(1.5) = \frac{1}{\sqrt{2\pi}}e^{-\frac{1.5^2}{2}} =  0.12951\dots$
+
+$f_2(1.5) = \frac{1}{\sqrt{2\pi}}e^{-\frac{(1.5-2)^2}{2}} = 0.3520\dots$
+
+$Pr(Y=1 | X = 1.5) = \frac{0.6(0.12951}{(0.6(0.12951))(1-0.6(0.3520)) = 0.356}$
+
+$0.356 \le 0.5$ The probability of the observation belonging to class 1 is lower than the 0.5 threshold so the Bayes classifier would classify the observation into class 2.
 
 # Conceptual exercises: II ($k$-NN classifier)
 
@@ -78,9 +92,19 @@ When k is large but $\frac{k}{n}$ is small, the classifier is approximating the 
 
 2.3) When there are $K \ge 2$ classes, how does a $k$-NN classifier classify a test observation $x_0$?
 
+When there are greater than two classes the process is very much the same. The algorithm computes the distances, finds the k nearest neighbors based on the distance, and then uses a majority vote to classify the observation. If there is a tie, the observation can just be assigned to the closest neighbors class, or just not classified.
+
 2.4) When should data be standardized before applying a $k$-NN classifier? When standardizing data, do we standardize each observation or each feature?
 
+Because kNN uses distance based metrics, the features need to be relatively similar in scale. This means you should standardize your data when the scales have vastly different ranges, or you have one feature that is incredibly large compared to the others. When standardizing you should do it column-wise so that each feature for each observation ends up on the same scale.
+
 2.5) Using your understanding of Example 3 in "LectureNotes4b_notes.pdf", provide a step-by-step guide on how to choose an optimal $k$ for $k$-NN classifier using cross-validation. You can provide such as guide in the form of "pseudocode" (see, e.g., <https://en.wikipedia.org/wiki/Pseudocode> for some details on pseudocode). Suppose the training set has few observations, can you still perform cross-validation in order to choose an optimal $k$? Explain your answer. (Hint: for the 2nd part, think about if having more observations helps better estimate test error.)
+
+Prepare Dataset split dataset into 5 - 10 folds (depends on user choice) with training and validation sets.
+
+declare a range of $k$ values to try (1-100?, 1-1,000?) for each k value: for each fold: perform Knn compute the test error estimate average the test error from each fold store the average test error associated with the value of K Find and return the best test error to find which value of K performed the best
+
+If the training set doesn't have many observations, you can still use it to try and find the optimal K value. However, the value it chooses may not be the correct one. A smaller test set means there will likely be more variance in the estimated test error metrics. Meaning the value of k may not work well once its applied to new data.
 
 # Applied exercises: I ($k$-NN classifier)
 
@@ -96,20 +120,54 @@ library(nycflights13)
 flights = na.omit(flights)
 flights = flights %>% filter(carrier %in% c('UA', 'AA', 'DL'))
 flights = flights %>% select(dep_delay, arr_delay, distance, carrier)
-
+sampled_flights = flights %>% group_by(carrier) %>% sample_n(500) %>% ungroup()
 ```
 
 7.1) First, you need to standardize the features since they are on very different scales. Then randomly split the observations into a training set that contains 70% of the observations and a test set that contains the remaining observations.
 
 ```{r scale and split training test}
-Y = flights$carrier
-X = flights[,1:3]
+y = sampled_flights$carrier
+x = sampled_flights[,1:3]
 
+x = scale(x)
+
+train_index <- sample(1:nrow(x), size = 0.7 * nrow(x))
+x_train <- as.data.frame(x[train_index, ])
+y_train <- as.data.frame(y[train_index])
+
+x_test <- as.data.frame(x[-train_index, ])
+y_test <- as.data.frame(y[-train_index])
 
 ```
 
 7.2) Consider the observations as forming 3 classes that are determined by `carrier`. To the training set, apply $10$ fold cross-validation to $k$-NN classifier with features `arr_delay`, `dep_delay`, and `distance` to determine the optimal $k$ from the values $\{1,\ldots,15\}$. Apply the optimal $k$-NN to the test set, provide the classification table and the overall error rate, and provide visualization of the classification results. Do you think the error rate is reasonable? Explain your answer. (Hint: you can follow the strategy provided by Example 3 in "LectureNotes4b_notes.pdf". )
+```{r, k = 20 fold validation}
+library(class)
+m = 10 #10 folds
+folds = sample(1:m, nrow(x_train)/m, replace = TRUE)
+table(folds) #check fold balance
 
+kmax = 5
+testErrors = matrix(0,nrow=2,ncol=kmax)
+for (k in 1:kmax){
+  testError1 = double(m)
+  for (s in 1:m){
+    trainingTmp = x_train[folds !=s,]
+    testTmp = x_test[folds==s,]
+    trainingLabsTmp = y_train[folds !=s,]
+    testLabsTmp = y_test[folds==s,]
+    knn = knn(trainingTmp, testTmp, trainingLabsTmp, k)
+    n_mistakes = sum(1-as.numeric(knn==testLabsTmp))
+    test_error = n_mistakes/length(testLabsTmp)
+    testError1[s] = test_error 
+  }
+  testErrors[,k] = c(mean(testError1), sd(testError1))
+}    
+
+colnames(testErrors) = paste("k=", 1:kmax,sep="")
+rownames(testErrors)=c("mean(TestError)", "sd(TestError)")
+testErrors
+```
 7.3) Note that your have standardized the features `arr_delay`, `dep_delay`, and `distance`. However, with the unstandardized features, you would surely know that none of them follows a Gaussian distribution no matter with respect to which class (i.e., `carrier`) you look at their observations since these features have non-negative values (whereas a Gaussian distribution can generate negative values). Again, the 3 classes are determined by `carrier`. So, you will apply QDA based on the 3 standardized the features to the training set to train the model, and then apply the trained model to the test set (that contains the 3 standardized the features) to classify its observations.
 
 (7.3a) First, check if the Gaussian assumption is satisfied. For this, note that if the standardized features `arr_delay`, `dep_delay`, and `distance` follow a trivariate Gaussian distribution for each individual class, then any pair among the 3 standardized features follows a bivariate Gaussian distribution for each individual class.
