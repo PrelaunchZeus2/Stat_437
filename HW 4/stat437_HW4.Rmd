@@ -166,7 +166,18 @@ for (k in 1:kmax){
 
 colnames(testErrors) = paste("k=", 1:kmax,sep="")
 rownames(testErrors)=c("mean(TestError)", "sd(TestError)")
-testErrors
+print(testErrors)
+
+best_k = which(testErrors[1,] == min(testErrors[1,]))
+best_knn = knn(x_train, x_test, y_train, best_k)
+n_errors = sum(1 - as.numeric(best_knn==y_test))
+best_test_error = n_errors/length(y_test)
+print(best_test_error)
+x_test$carrier = y_test
+x_test$estimated_carrier = best_knn
+
+p = ggplot(x_test, aes(distance, arr_delay)) + geom_point(aes(shape = estimated_carrier, color = carrier)) + theme_bw()
+
 ```
 7.3) Note that your have standardized the features `arr_delay`, `dep_delay`, and `distance`. However, with the unstandardized features, you would surely know that none of them follows a Gaussian distribution no matter with respect to which class (i.e., `carrier`) you look at their observations since these features have non-negative values (whereas a Gaussian distribution can generate negative values). Again, the 3 classes are determined by `carrier`. So, you will apply QDA based on the 3 standardized the features to the training set to train the model, and then apply the trained model to the test set (that contains the 3 standardized the features) to classify its observations.
 
