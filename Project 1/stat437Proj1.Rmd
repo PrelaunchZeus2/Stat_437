@@ -96,11 +96,11 @@ set.seed(123)
 fiftygenes = sample(colnames(stdgexpProj1, 50))
 fiftygeneset = stdgexpProj1[, fiftygenes]
 
-gap = clusGap(fiftygeneset, FUN = kmeans, K.max = 10, B = 200, iter.max = 100)
+gap = clusGap(fiftygeneset, FUN = kmeans, K.max = 29, B = 200, iter.max = 100)
 optimal_k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
 print(optimal_k)
 
-k_means = kmeans(fiftygeneset, optimal_k, iter.max = 100, nstart = 25, algorithm = "Hartigan-Wong")
+k_means = kmeans(fiftygeneset, optimal_k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
 
 vis = data.frame(fiftygeneset)
 vis$Type = labels1 %>% filter(rownames(labels1) %in% rownames(labels1)) %>% pull(Class)
@@ -118,6 +118,36 @@ $$
 \left\{\Delta_{k}:k<K^{\ast}\right\}  \gg\left\{  \Delta_{k}:k\geq K^{\ast}\right\}
 $$
 is an estimate of the true number $K$ of clusters in the data, where $\gg$ means "much larger". Apply this method to obtain an estimate of $K$ for the data you created in **Part 1**, and provide a plot of $W\left(k\right)$ against $k$ for each $k$ between $1$ and $10$. Compare this estimate with the estimate obtained in **Part 1** given by the gap statistic, comment on the accuracy of the two estimates, and explain why they are different.
+
+```{r, Task A2 Part 2}
+set.seed(123)
+SumSquares <- numeric(10)
+km_list <- list()
+
+#run k_means for k values 1 - 10
+for (k in 1:10){
+  km = kmeans(fiftygeneset, k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
+  SumSquares[k] = km$tot.withinss
+}
+
+#compute the differences Delta k
+delta = numeric(9)
+for (i in 1:9)
+  delta[i] = SumSquares[i] - SumSquares[i + 1]
+
+K_star = which.max(delta) + 1
+
+plot2 = plot(1:10, SumSquares, type = "b", xlab = "K", ylab = "W(k)")
+plot2
+
+cat("K* =", K_star)
+cat("ClusGap =", optimal_k, "\n")
+
+print(delta)
+
+
+
+```
 
 
 (**Part 3 of of Task A2**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the analysis in **Part 1** and **Part 2**. Report your findings, compare your findings with those from **Part 1** and **Part 2**; if there are differences between these findings, explain why. Regard using more genes as using more features, does using more features necessarily give more accurate clutering or classification results? 
