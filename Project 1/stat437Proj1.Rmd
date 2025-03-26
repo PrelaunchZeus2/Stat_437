@@ -57,7 +57,7 @@ gene_labels = as.data.frame(read.csv('labels.csv', row.names = 1))
 gexp2 = gene_data %>% select_if(~ sum(. == 0) <= 300)
 
 #sample 1000 genes and their expressions
-random_columns = sample(colnames(gexp2), 1000)2.
+random_columns = sample(colnames(gexp2), 1000)
 gexp3 = gexp2 %>% select(all_of(random_columns))
 
 #Sample 30 samples and their labels from the file "labels.csv"
