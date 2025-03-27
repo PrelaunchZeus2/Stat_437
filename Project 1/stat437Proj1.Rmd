@@ -51,13 +51,13 @@ Please use `set.seed(123)` for random sampling via the command `sample`, random 
 ```{r, Import Data}
 library(dplyr)
 set.seed(123)
-gene_data = read.csv('data.csv', row.names = 1)
+gene_data = read.csv('data.csv', row.names = 1) #read row names from sample name column
 gene_labels = as.data.frame(read.csv('labels.csv', row.names = 1))
 #filter genes who's expression are zero for at least 300 subjects (aka columns with more than 300 rows containing 0)
 gexp2 = gene_data %>% select_if(~ sum(. == 0) <= 300)
 
 #sample 1000 genes and their expressions
-random_columns = sample(colnames(gexp2), 1000)
+random_columns = sample(colnames(gexp2), 1000) #don't have to worry about sample column since its the row.name
 gexp3 = gexp2 %>% select(all_of(random_columns))
 
 #Sample 30 samples and their labels from the file "labels.csv"
@@ -96,7 +96,7 @@ set.seed(123)
 fiftygenes = sample(colnames(stdgexpProj1, 50))
 fiftygeneset = stdgexpProj1[, fiftygenes]
 
-gap = clusGap(fiftygeneset, FUN = kmeans, K.max = 29, B = 200, iter.max = 100)
+gap = clusGap(fiftygeneset, FUN = kmeans, K.max = 10, B = 200, iter.max = 100)
 optimal_k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
 print(optimal_k)
 
@@ -124,13 +124,11 @@ set.seed(123)
 SumSquares <- numeric(10)
 km_list <- list()
 
-#run k_means for k values 1 - 10
 for (k in 1:10){
   km = kmeans(fiftygeneset, k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
   SumSquares[k] = km$tot.withinss
 }
 
-#compute the differences Delta k
 delta = numeric(9)
 for (i in 1:9)
   delta[i] = SumSquares[i] - SumSquares[i + 1]
@@ -140,7 +138,7 @@ K_star = which.max(delta) + 1
 plot2 = plot(1:10, SumSquares, type = "b", xlab = "K", ylab = "W(k)")
 plot2
 
-cat("K* =", K_star)
+cat("K* =", K_star, "\n")
 cat("ClusGap =", optimal_k, "\n")
 
 print(delta)
@@ -150,7 +148,53 @@ print(delta)
 ```
 
 
-(**Part 3 of of Task A2**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the analysis in **Part 1** and **Part 2**. Report your findings, compare your findings with those from **Part 1** and **Part 2**; if there are differences between these findings, explain why. Regard using more genes as using more features, does using more features necessarily give more accurate clutering or classification results? 
+(**Part 3 of of Task A2**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the analysis in **Part 1** and **Part 2**. Report your findings, compare your findings with those from **Part 1** and **Part 2**; if there are differences between these findings, explain why. Regard using more genes as using more features, does using more features necessarily give more accurate clustering or classification results? 
+
+```{r, Task A2 Part 3}
+set.seed(123)
+twofiftygenes = sample(colnames(stdgexpProj1, 250))
+twofiftygeneset = stdgexpProj1[, twofiftygenes]
+
+
+#clusGap estimate for K
+gap2 = clusGap(twofiftygeneset, FUN = kmeans, K.max = 10, B = 200, iter.max = 100)
+optimal_k_250 = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
+print(optimal_k_250)
+
+k_means = kmeans(twofiftygeneset, optimal_k_250, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
+
+vis = data.frame(twofiftygeneset)
+vis$Type = labels1 %>% filter(rownames(labels1) %in% rownames(labels1)) %>% pull(Class)
+vis$cluster = factor(k_means$cluster)
+
+plot = ggplot(vis, aes(x = gene_19103, y = gene_6277)) + xlab("Gene 19103 Expression") + ylab("Gene 6277 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
+plot
+
+
+#other method estimate for K
+SumSquares2 <- numeric(10)
+km_list2 <- list()
+
+for (k in 1:10){
+  km = kmeans(fiftygeneset, k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
+  SumSquares2[k] = km$tot.withinss
+}
+
+delta2 = numeric(9)
+for (i in 1:9)
+  delta2[i] = SumSquares2[i] - SumSquares2[i + 1]
+
+K_star2 = which.max(delta2) + 1
+
+plot2 = plot(1:10, SumSquares2, type = "b", xlab = "K", ylab = "W(k)")
+plot2
+
+cat("K* =", K_star2, "\n")
+cat("ClusGap =", optimal_k_250, "\n")
+
+print(delta2)
+
+```
 
 
 
