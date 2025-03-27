@@ -1,0 +1,26 @@
+---
+title: "Lecture 5"
+author: "John Salmon"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Logistic Regression Revisited
+
+Helen Zhao made a method for speeding up logistic regression with penalty. However is is computationally challenging to do log-reg in high dimension. Screening Method for Interaction Terms.
+
+For Ridge Logistic Regression it is useful for selecting or simultaneously shrinking correlated predictors. in the $p > n \text{ or } p < n$ case. 
+
+Logistic Regression may be the best predictive model for two class classification tasks.
+
+For 3+ class classification you still declare a base class and compute the probabilities based on that base class.
+With multi-class regression you simply get probabilities for each class, then you pick the assigned class based on which ever has the highest probability.
+
+
+#### Multiclass Bayes... > 2 classes.
+multiclass you move from Bernoulli -> multinomial distribution.
+
+
