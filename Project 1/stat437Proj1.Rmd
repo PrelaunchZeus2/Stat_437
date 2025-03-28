@@ -55,21 +55,26 @@ gene_data = read.csv('data.csv', row.names = 1) #read row names from sample name
 gene_labels = as.data.frame(read.csv('labels.csv', row.names = 1))
 #filter genes who's expression are zero for at least 300 subjects (aka columns with more than 300 rows containing 0)
 gexp2 = gene_data %>% select_if(~ sum(. == 0) <= 300)
+saveRDS(gexp2, file = "RObjects/gexp2.rds") #save
 
 #sample 1000 genes and their expressions
 random_columns = sample(colnames(gexp2), 1000) #don't have to worry about sample column since its the row.name
 gexp3 = gexp2 %>% select(all_of(random_columns))
+saveRDS(gexp3, file = "RObjects/gexp3.rds")
 
 #Sample 30 samples and their labels from the file "labels.csv"
 sample_indices = sample(1:dim(gexp3)[1], size = 30, replace = FALSE)
 gexpProj1 = gexp3[sample_indices,]
 gexpProj1 <- gexpProj1[order(rownames(gexpProj1)), ]
+saveRDS(gexpProj1, "RObjects/gexpProj1")
 labels1 = gene_labels %>% filter(rownames(gene_labels) %in% rownames(gexpProj1))
+saveRDS(labels1, file = "Robjects/labels1")
 print(gexpProj1)
 print(labels1)
 
 #scale the gene expressions
 stdgexpProj1 = scale(gexpProj1)
+saveRDS(stdgexpProj1, file = "RObjects/stdgexProj1")
 ```
 
 
@@ -93,22 +98,35 @@ When you apply `clusGap`, please use arguments `K.max=10, B=200,iter.max=100`, a
 library(cluster)
 library(ggplot2)
 set.seed(123)
-fiftygenes = sample(colnames(stdgexpProj1, 50))
+fiftygenes = sample(colnames(stdgexpProj1), 50)
 fiftygeneset = stdgexpProj1[, fiftygenes]
 
-gap = clusGap(fiftygeneset, FUN = kmeans, K.max = 10, B = 200, iter.max = 100)
-optimal_k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
-print(optimal_k)
+gap = clusGap(fiftygeneset, FUNcluster = kmeans, K.max = 10, B = 200, iter.max = 100, nstart = 20)
+optimal_k = maxSE(f = gap$Tab[, "gap"], SE.f = gap$Tab[, "SE.sim"], method = "Tibs2001SEmax", SE.factor = 1)
+cat("Clusgap Computed Optimal K value:", optimal_k, "\n")
 
 k_means = kmeans(fiftygeneset, optimal_k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
 
 vis = data.frame(fiftygeneset)
-vis$Type = labels1 %>% filter(rownames(labels1) %in% rownames(labels1)) %>% pull(Class)
+vis$Type = labels1 %>% filter(rownames(labels1) %in% rownames(fiftygeneset)) %>% pull(Class)
 vis$cluster = factor(k_means$cluster)
+
+classification_table = table(vis$Type, vis$cluster)
+print(classification_table)
+
+correct_classifications = sum(diag(classification_table))
+total_classifications = sum(classification_table)
+classification_errors = total_classifications - correct_classifications
+error_rate = classification_errors / total_classifications
+
+cat("Number of classification errors:", classification_errors, "\n")
+cat("Error rate:", error_rate, "\n")
+
 
 plot = ggplot(vis, aes(x = gene_19103, y = gene_6277)) + xlab("Gene 19103 Expression") + ylab("Gene 6277 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
 plot
 ```
+The classification results from using clusGap to estimate an optimal number of clusters is not very good. ClusGap estimated that there should be only 1 cluster based on the genes from the 30 subjects used for calculation. Since we know the true cluster labels, this is obviously incorrect since there are 5 different labels. The k means clustering made 14 out of 30 errors while classifying and had an error rate of 46.66%.
 
 
 (**Part 2 of of Task A2**) Upon implementing `kmeans` with $k$ as the number of clusters, we will obtain the "total within-cluster sum of squares" $W\left(k\right)$ from the output `tot.withinss` of `kmeans`. If we try a sequence of $k=1,2,3,...,10$, then we get $W\left(k\right)$ for
@@ -142,9 +160,6 @@ cat("K* =", K_star, "\n")
 cat("ClusGap =", optimal_k, "\n")
 
 print(delta)
-
-
-
 ```
 
 
@@ -152,23 +167,31 @@ print(delta)
 
 ```{r, Task A2 Part 3}
 set.seed(123)
-twofiftygenes = sample(colnames(stdgexpProj1, 250))
+twofiftygenes = sample(colnames(stdgexpProj1), 250)
 twofiftygeneset = stdgexpProj1[, twofiftygenes]
 
 
 #clusGap estimate for K
 gap2 = clusGap(twofiftygeneset, FUN = kmeans, K.max = 10, B = 200, iter.max = 100)
-optimal_k_250 = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
+optimal_k_250 = maxSE(gap2$Tab[, "gap"], gap2$Tab[, "SE.sim"], method="Tibs2001SEmax", SE.factor = 1)
 print(optimal_k_250)
 
-k_means = kmeans(twofiftygeneset, optimal_k_250, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
+k_means2 = kmeans(twofiftygeneset, optimal_k_250, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
 
-vis = data.frame(twofiftygeneset)
-vis$Type = labels1 %>% filter(rownames(labels1) %in% rownames(labels1)) %>% pull(Class)
-vis$cluster = factor(k_means$cluster)
+vis2 = data.frame(twofiftygeneset)
+vis2$Type = labels1 %>% filter(rownames(labels1) %in% rownames(twofiftygeneset)) %>% pull(Class)
+vis2$cluster = factor(k_means2$cluster)
 
-plot = ggplot(vis, aes(x = gene_19103, y = gene_6277)) + xlab("Gene 19103 Expression") + ylab("Gene 6277 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
-plot
+plot3 = ggplot(vis2, aes(x = gene_19103, y = gene_6277)) + xlab("Gene 19103 Expression") + ylab("Gene 6277 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
+plot3
+
+classification_table = table(vis$Type, vis$cluster)
+print(classification_table)
+
+correct_classifications = sum(diag(classification_table))
+total_classifications = sum(classification_table)
+classification_errors = total_classifications - correct_classifications
+error_rate = classification_errors / total_classifications
 
 
 #other method estimate for K
@@ -195,6 +218,7 @@ cat("ClusGap =", optimal_k_250, "\n")
 print(delta2)
 
 ```
+Despite increasing the number of genes, there is not really a difference between the two clustering problems. Using clusGap to estimate a good k value to use still tells us to use the value 1, while using the k* method tells us to use a value of 2. Since we know the true clustering labels, we know that these are not the correct values of k as there are 5 levels in labels1. 
 
 
 
