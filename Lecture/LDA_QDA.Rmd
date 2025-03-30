@@ -1,0 +1,45 @@
+---
+title: ''
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Lecture Notes 4A.
+
+
+#LDA
+
+There are 4 things that make lda slightly worse than bayes in the 
+1. Similar Variances
+1. LDA is estimating Bayes Classifier
+1. There aren't infinite observations
+1. Model Assumptions are ok (observations are separate/spread out from each other)
+
+
+For best LDA results:
+The ultimate number of observations is not the deciding factor, it is that observations are spread out.
+
+
+Given an infinite number of data points and infinite time, will LDA's test error ever equal the test error of the bayes classifier?
+If you have two classes then yes you will eventually get the Bayes classifier, the strong law of large number numbers says MLE would converge to the Bayesian test error.
+
+For real world data sets and applying LDA you have to be careful because the trade off of standardizing data is that the data's covariance matrix will become the correlation matrix.
+
+LDA requires observations on feature variables in each class to follow a gaussian distribution.
+
+Two types of error, false positive and false negative, both have different contextual meanings depending on what is being studied. 
+
+Sensitivity - Estimates the Power (aka the probability of rejecting $H_0$ when $H_0$ is true) ($1 - \beta$)
+Specificity - 1 - Specificity estimates type 1 error(false positive rate). ($\alpha$) 
+
+Both should be close to 1 for an ideal classifier.
+
+#QDA
+QDA works when co-variance matrices are not the same between classes, LDA does not.
+
+LDA QDA can work on student T dist because as the DF increases the T dist begins to approimate the gaussian dist.
