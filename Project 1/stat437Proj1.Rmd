@@ -223,7 +223,22 @@ Despite increasing the number of genes, there is not really a difference between
 
 
 (**Task A3**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the following: respectively apply hierarchical clustering with average linkage, single linkage, and complete linkage to cluster subjects into groups, and create a dendrogram. For the dendrogram obtained from average linkage, find the height at which cutting the dendrogram gives the same number of groups in "labels1", and comment on the clustering results obtained at this height by comparing them to the truth contained in "labels1".
+```{r, task A3}
+library(ggdendro)
+set.seed(123)
+twofiftygenes_h = sample(colnames(stdgexpProj1), 250)
+twofiftygeneset_h = stdgexpProj1[, twofiftygenes_h]
 
+D = dist(twofiftygeneset_h)
+hc$average = hclust(D, method = "average")
+hc$single = hclust(D, method = "single")
+hc$complete = hclust(D, method = "complete")
+
+cutheight = hc$average$height[length(hc$height)-2]
+
+
+
+```
 
 # Task B. Classification
 
