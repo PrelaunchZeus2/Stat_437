@@ -53,8 +53,13 @@ library(dplyr)
 set.seed(123)
 gene_data = read.csv('data.csv', row.names = 1) #read row names from sample name column
 gene_labels = as.data.frame(read.csv('labels.csv', row.names = 1))
+```
+
+```{r, Task A1}
+set.seed(123)
 #filter genes who's expression are zero for at least 300 subjects (aka columns with more than 300 rows containing 0)
-gexp2 = gene_data %>% select_if(~ sum(. == 0) <= 300)
+num_zeros = colSums(gene_data == 0)
+gexp2 = gene_data[, names(num_zeros[num_zeros < 300])]
 saveRDS(gexp2, file = "RObjects/gexp2.rds") #save
 
 #sample 1000 genes and their expressions
@@ -74,7 +79,6 @@ print(labels1)
 
 #scale the gene expressions
 stdgexpProj1 = scale(gexpProj1)
-stdgexpProj1 = gexpProj1
 saveRDS(stdgexpProj1, file = "RObjects/stdgexProj1")
 ```
 
@@ -102,8 +106,9 @@ set.seed(123)
 fiftygenes = sample(colnames(stdgexpProj1), 50)
 fiftygeneset = stdgexpProj1[, fiftygenes]
 
-gap = clusGap(fiftygeneset, FUNcluster = kmeans, K.max = 10, B = 200, iter.max = 100, nstart = 20)
-optimal_k = maxSE(f = gap$Tab[, "gap"], SE.f = gap$Tab[, "SE.sim"], method = "Tibs2001SEmax", SE.factor = 1)
+gap = clusGap(fiftygeneset, FUNcluster = kmeans, K.max = 10, B = 200, iter.max = 100)
+
+optimal_k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method = "firstSEmax")
 cat("Clusgap Computed Optimal K value:", optimal_k, "\n")
 
 k_means = kmeans(fiftygeneset, optimal_k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
@@ -124,7 +129,7 @@ cat("Number of classification errors:", classification_errors, "\n")
 cat("Error rate:", error_rate, "\n")
 
 
-plot = ggplot(vis, aes(x = gene_19103, y = gene_6277)) + xlab("Gene 19103 Expression") + ylab("Gene 6277 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
+plot = ggplot(vis, aes(x = gene_19110, y = gene_6280)) + xlab("Gene A Expression") + ylab("Gene B Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
 plot
 ```
 The classification results from using clusGap to estimate an optimal number of clusters is not very good. ClusGap estimated that there should be only 1 cluster based on the genes from the 30 subjects used for calculation. Since we know the true cluster labels, this is obviously incorrect since there are 5 different labels. The k means clustering made 14 out of 30 errors while classifying and had an error rate of 46.66%.
@@ -154,14 +159,15 @@ for (i in 1:9)
 
 K_star = which.max(delta) + 1
 
+plot(gap)
+
 plot2 = plot(1:10, SumSquares, type = "b", xlab = "K", ylab = "W(k)")
 plot2
 
 cat("K* =", K_star, "\n")
 cat("ClusGap =", optimal_k, "\n")
-
-print(delta)
 ```
+Both estimates are different from each other, the ClusGap estimate suggests that 1 cluster should be used, while the K-star method predicted two clusters. 
 
 
 (**Part 3 of of Task A2**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the analysis in **Part 1** and **Part 2**. Report your findings, compare your findings with those from **Part 1** and **Part 2**; if there are differences between these findings, explain why. Regard using more genes as using more features, does using more features necessarily give more accurate clustering or classification results? 
@@ -183,7 +189,7 @@ vis2 = data.frame(twofiftygeneset)
 vis2$Type = labels1 %>% filter(rownames(labels1) %in% rownames(twofiftygeneset)) %>% pull(Class)
 vis2$cluster = factor(k_means2$cluster)
 
-plot3 = ggplot(vis2, aes(x = gene_19103, y = gene_6277)) + xlab("Gene 19103 Expression") + ylab("Gene 6277 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
+plot3 = ggplot(vis2, aes(x = gene_19110, y = gene_6280)) + xlab("Gene A Expression") + ylab("Gene B Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
 plot3
 
 classification_table = table(vis$Type, vis$cluster)
