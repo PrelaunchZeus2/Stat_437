@@ -218,27 +218,38 @@ cat("ClusGap =", optimal_k_250, "\n")
 print(delta2)
 
 ```
-Despite increasing the number of genes, there is not really a difference between the two clustering problems. Using clusGap to estimate a good k value to use still tells us to use the value 1, while using the k* method tells us to use a value of 2. Since we know the true clustering labels, we know that these are not the correct values of k as there are 5 levels in labels1. 
+Despite increasing the number of genes, there is not really a difference between the two clustering problems. Using clusGap to estimate a good k value to use still tells us to use the value 1, while using the k* method tells us to use a value of 2. Since we know the true clustering labels, we know that these are not the correct values of k as there are 5 levels in labels1.
 
 
 
 (**Task A3**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the following: respectively apply hierarchical clustering with average linkage, single linkage, and complete linkage to cluster subjects into groups, and create a dendrogram. For the dendrogram obtained from average linkage, find the height at which cutting the dendrogram gives the same number of groups in "labels1", and comment on the clustering results obtained at this height by comparing them to the truth contained in "labels1".
 ```{r, task A3}
 library(ggdendro)
+source("Plotggdendro.r") #called to create the dendrogram with a line at the cut height
 set.seed(123)
 twofiftygenes_h = sample(colnames(stdgexpProj1), 250)
 twofiftygeneset_h = stdgexpProj1[, twofiftygenes_h]
 
+rownames(twofiftygeneset_h) = labels1 %>% filter(rownames(labels1) %in% rownames(twofiftygeneset_h)) %>% pull(Class) 
+
 D = dist(twofiftygeneset_h)
-hc$average = hclust(D, method = "average")
-hc$single = hclust(D, method = "single")
-hc$complete = hclust(D, method = "complete")
+hc_average = hclust(D, method = "average")
+hc_single = hclust(D, method = "single")
+hc_complete = hclust(D, method = "complete")
 
-cutheight = hc$average$height[length(hc$height)-2]
+cutheight = hc_average$height[length(hc_average$height)-6]
+ave_dendro_data = dendro_data_k(hc_average, 5)
 
+average_linkage_plot = plot_ggdendro(ave_dendro_data, direction = "tb", heightReferece = cutheight, expand.y = 0.3) + ggtitle("Clustering with Average Linkage")
+single_linkage_plot = ggdendrogram(hc_single) + ggtitle("Hierarchical Clustering with Single Linkage")
+complete_linkage_plot = ggdendrogram(hc_complete) + ggtitle("HC with complete linkage")
 
-
+average_linkage_plot
+single_linkage_plot
+complete_linkage_plot
 ```
+Examining the dendrogram created for Hierarchical Clustering using average linkage, we can compare the color of the generated clusters with the true labels which appear on the bottom. With this comparison in mind, I would say this clustering based on 250 unique genes was not very accurate or conclusive. There are many mismatched colors and labels. Additionally 3 of the estimated clusters light blue, green, and pink all contain 3 or fewer observations yet contain labels that are seen in other clusters. 
+
 
 # Task B. Classification
 
