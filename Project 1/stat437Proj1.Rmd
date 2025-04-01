@@ -74,6 +74,7 @@ print(labels1)
 
 #scale the gene expressions
 stdgexpProj1 = scale(gexpProj1)
+stdgexpProj1 = gexpProj1
 saveRDS(stdgexpProj1, file = "RObjects/stdgexProj1")
 ```
 
@@ -218,7 +219,7 @@ cat("ClusGap =", optimal_k_250, "\n")
 print(delta2)
 
 ```
-Despite increasing the number of genes, there is not really a difference between the two clustering problems. Using clusGap to estimate a good k value to use still tells us to use the value 1, while using the k* method tells us to use a value of 2. Since we know the true clustering labels, we know that these are not the correct values of k as there are 5 levels in labels1.
+Despite increasing the number of genes, there is not really a difference between the two clustering problems. Using clusGap to estimate a good k value to use still tells us to use the value 1, while using the k* method tells us to use a value of 2. Since we know the true clustering labels, we know that these are not the correct values of k as there are 5 levels in labels1. In this application, providing the clustering algorithms with more features did not improve the quality or accuracy of our results. 
 
 
 
@@ -229,6 +230,7 @@ source("Plotggdendro.r") #called to create the dendrogram with a line at the cut
 set.seed(123)
 twofiftygenes_h = sample(colnames(stdgexpProj1), 250)
 twofiftygeneset_h = stdgexpProj1[, twofiftygenes_h]
+
 
 rownames(twofiftygeneset_h) = labels1 %>% filter(rownames(labels1) %in% rownames(twofiftygeneset_h)) %>% pull(Class) 
 
