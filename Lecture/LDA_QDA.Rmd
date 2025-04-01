@@ -42,4 +42,20 @@ Both should be close to 1 for an ideal classifier.
 #QDA
 QDA works when co-variance matrices are not the same between classes, LDA does not.
 
-LDA QDA can work on student T dist because as the DF increases the T dist begins to approimate the gaussian dist.
+LDA QDA can work on student T dist because as the DF increases the T dist begins to approximate the Gaussian dist.
+
+Understanding when to use LDA vs QDA is a difficult task, especially as number of features and classes increases. 
+
+# Regularized LDA
+When p > n
+
+Regularized uses another term $\alpha$ that moves the matrices. 
+
+Geodesic formed by $(1-\alpha) \hat{\Sigma} + \alpha \hat{\Sigma_k}$ forms the fastest way to transform one matrix to another while preserving eigen-values.
+
+The $\alpha$ term controls whether it behaves like QDA or LDA because of how the variance is shared or kept classwise.
+
+You dilute pooled variability with classwise variability to get a new classwise variance.
+
+
+
