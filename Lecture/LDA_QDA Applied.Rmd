@@ -1,0 +1,91 @@
+---
+title: "LDA"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# LDA Implimented
+
+```{r,data}
+library(ElemStatLearn) # library containing data
+data(nci); n0=dim(nci)[2]; p0=dim(nci)[1] #get dimensions
+set.seed(123)
+rSel = sample(1:p0, size=50, replace = FALSE)
+chk = colnames(nci) %in% c("BREAST", "LEUKEMIA", "COLON")
+cSel = which(chk ==TRUE)
+ncia = nci[rSel,cSel]
+colnames(ncia) = colnames(nci)[cSel]
+# transposed subset data as `tmp`
+tmp = data.frame(t(ncia)); tmp$Class=colnames(ncia)
+rownames(tmp)=NULL; dim(tmp)
+table(tmp$Class)
+```
+
+```{r, LDA}
+set.seed(123)
+library(MASS)
+lda.fit = lda(Class~.,data=tmp)
+lda.pred = predict(lda.fit,tmp)
+TrueClassLabel=tmp$Class
+LDAEstimtedClassLabel=lda.pred$class
+table(LDAEstimtedClassLabel,TrueClassLabel)
+```
+Ok so if the gaussian distribution requirement is violated, why do we have such a good classification rate?
+
+Well basically as long as the data points are well separated it doesn't really matter what the distribution is.
+
+Support vector machine is a linear classifier that exploits the abiliity to tilt the hyperplane decision boudary based on the classification margin.
+
+
+
+```{r, QDA}
+set.seed(123)
+qda.fit = qda(Class~.,data=tmp)
+```
+sample group is too small for the estimation of the classwise covariance matrix. To estimate the matricies $n$ must be $\ge$ $p$.
+
+```{r, regularized RDA}
+library(klaR)
+rda(formula, data, gamma = 0.05, lambda = 0.2, crossval = FALSE, ...)
+```
+$\gamma$ (gamma) is related to estimating the covariance matrix
+$\lambda$ (lambda) is related to how you are calculating the pooled covariance matrix
+
+with regularized findng lambda and gamma you do a 2d grid search and try to minimize the distance between the two generated matricies.
+
+in this case $\gamma$ is very small so the matrix is closer to the identity matrix
+the larger the $\lambda$ the less variability between classwise matricies
+
+```{r, regularized RDA}
+library(klaR)
+rda.fit = rda(Class~.,data=tmp, gamma = 0.05, lambda = 0.2)
+rda.pred = predict(rda.fit, tmp) # classify obs in `tmp`
+TrueClassLabel=tmp$Class
+rDAEstimtedClassLabel=rda.pred$class
+table(rDAEstimtedClassLabel,TrueClassLabel)
+```
+because of the convex hull the lambda and gamma values can be changed slightly with out ruining the perfect classification.
+
+```{r, extract estimated covariance matricies}
+# extract estimated covariance matrices
+hatSigma1 = rda.fit$covariances[,,1]
+hatSigma2 = rda.fit$covariances[,,2]
+hatSigma3 = rda.fit$covariances[,,3]
+```
+
+```{r, melt est. covariance matrices}
+# convert estimated covariance matrices for plotting 
+library(reshape2)
+melted_hatSigma1 = melt(hatSigma1)
+melted_hatSigma2 = melt(hatSigma2)
+melted_hatSigma3 = melt(hatSigma3)
+EstSigmaAll=rbind(melted_hatSigma1,melted_hatSigma2, melted_hatSigma3)
+EstSigmaAll$Cancer=rep(c("BREAST","COLON","LEUKEMIA"), each=nrow(melted_hatSigma1))
+EstSigmaAll$Cancer=factor(EstSigmaAll$Cancer)
+```
+
+```{r, plot cov matricies}
+library(ggplot2)
+ggplot(data=EstSigmaAll, aes(x=Var1, y=Var2, fill=value)) + geom_tile() + scale_fill_gradient2(low="blue", high="red") + facet_grid(~Cancer) + xlab("") + ylab("") + ggtitle("Estimated covariance matrices") + theme(plot.title = element_text(hjust = 0.5))
+```

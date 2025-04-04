@@ -1,0 +1,117 @@
+---
+title: "Lecture 5b"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### 2D Density Estimation
+
+```{r, packages}
+library(mvtnorm)
+library(MASS)
+library(ggplot2)
+library(plot3D)
+library(graphics)
+```
+
+```{r, generate data, 1}
+set.seed(117)
+n = 1000000
+cpb = c(0.4,0.3,0.3)
+clbs = sample(1:3, n, replace = T, prob = cpb)
+n1 = length(clbs[clbs==1])
+n2 = length(clbs[clbs==2])
+n3 = length(clbs[clbs==3])
+
+x1 = rmvnorm(n1, mean = c(0,0), sigma = diag(2))
+Sg2 = matrix(c(1,0.7,0.7,1), nrow = 2)
+x2=rmvnorm(n2, mean=c(-1,-1), sigma=Sg2); 
+x3=rmvnorm(n3, mean=c(1,1), sigma=0.25*diag(2))
+
+proportion = c(rep(cpb[1],n1),rep(cpb[2],n2),rep(cpb[3],n3))
+component=c(rep(1,n1),rep(2,n2),rep(3,n3))
+observation = rbind(x1,x2,x3)
+colnames(observation)=c("X1","X2")
+df1=data.frame(cbind(observation,proportion,component))
+cpStg=c(expression(f[1]),expression(f[2]),expression(f[3]))
+df1$component = factor(df1$component,labels=cpStg)
+df1[1,]
+```
+
+```{r, Density estimation}
+# extract obs. from each class
+df1a=df1[df1$component=="f[1]",]
+df1b=df1[df1$component=="f[2]",]
+df1c=df1[df1$component=="f[3]",]
+# 2D density estimate
+fde1 = with(df1a, MASS::kde2d(X1, X2, n = 50), lims=c(min(df1a$X1),max(df1a$X1),min(df1a$X2),max(df1a$X2)))
+fde2 = with(df1b, MASS::kde2d(X1, X2, n = 50), lims=c(min(df1b$X1),max(df1b$X1),min(df1b$X2),max(df1b$X2)))
+fde3 = with(df1c, MASS::kde2d(X1, X2, n = 50), lims=c(min(df1c$X1),max(df1c$X1),min(df1c$X2),max(df1c$X2)))
+```
+
+```{r, create color scheme}
+# Color palette (100 colors)
+col.pal = colorRampPalette(c("green", "red"))
+colors = col.pal(100)
+# centers of surface facets 
+nrz = ncz = 50
+z1.facet.center = (fde1$z[-1, -1] + fde1$z[-1, -ncz] + fde1$z[-nrz, -1] + fde1$z[-nrz, -ncz])/4
+# Range of colors
+z1.facet.range = cut(z1.facet.center, 100)
+# do the same for f2
+z2.facet.center = (fde2$z[-1, -1] + fde2$z[-1, -ncz] + fde2$z[-nrz, -1] + fde2$z[-nrz, -ncz])/4
+z2.facet.range = cut(z2.facet.center, 100)
+# do the same for f3
+z3.facet.center = (fde3$z[-1, -1] + fde3$z[-1, -ncz] + fde3$z[-nrz, -1] + fde3$z[-nrz, -ncz])/4
+z3.facet.range = cut(z3.facet.center, 100)
+```
+
+```{r, create density plot}
+par(mfrow=c(2,2),mar = c(.6,0.5,.8,.5),oma=c(.3,.3,.3,.3))
+persp(fde1,phi=30,theta=20,d=5,xlab="X1",ylab="X2", zlab="density",main=expression(f[1]),r = sqrt(.5), ticktype="detailed",col=colors[z1.facet.range]) 
+persp(fde2,phi=30,theta=20,d=5,xlab="X1",ylab="X2", zlab="density",main=expression(f[2]),r = sqrt(0.5), ticktype="detailed",col=colors[z2.facet.range])
+persp(fde3,phi=30,theta=20,d=5,xlab="X1",ylab="X2", zlab="density",main=expression(f[2]),r = sqrt(0.5), ticktype="detailed",col=colors[z2.facet.range])
+```
+
+```{r, Contours of 2d density}
+ggplot(df1, aes(X1, X2)) + theme_bw() + 
+  facet_grid(~component,labeller = label_parsed) + 
+  stat_density_2d(aes(fill = ..level..), geom = "polygon", colour="white") + 
+  theme(legend.position="top", legend.direction="horizontal")
+```
+
+```{r, plot marginal density2}
+fde <- with(df1, MASS::kde2d(X1, X2, n = 50), lims = c(min(df1$X1),max(df1$X1),min(df1$X2),max(df1$X2)))
+# create coloring scheme
+col.pal <- colorRampPalette(c("green", "red"))
+colors <- col.pal(100)
+nrz = ncz = 50
+z.facet.center <- (fde$z[-1, -1] + fde$z[-1, -ncz] + fde$z[-nrz, -1] + fde$z[-nrz, -ncz])/4
+z.facet.range <- cut(z.facet.center, 100)
+# create perspective plot
+par(mfrow=c(1,1),mar = c(.5,.5,.8,.5),oma=c(.3,.0,.3,.0))
+persp(fde, phi = 30, theta = 20, d = 5,xlab = "X1", ylab = "X2",zlab="density",main=expression(f), r=sqrt(.5),ticktype="detailed",col=colors[z.facet.range])
+```
+When checking assumptions for QDA and LDA check class wise density!
+
+```{r, other countours of marginal}
+ggplot(df1, aes(X1, X2))+theme_bw() + stat_density_2d(aes(fill = ..level..), geom = "polygon", colour="white")
+```
+
+```{r, }
+library(plot3D)
+# range of values for x and y
+# range is discretized 
+y <- x <- seq(-10, 10, length=60)
+# create function f(x,y)
+f <- function(x,y) { r <- sqrt(x^2+y^2); 10 * sin(r)/r }
+# evaluate f on grid x \otimes y
+z <- outer(x, y, f)
+# create plot
+persp3D(x, y, z, theta = 30, phi = 30)
+```
