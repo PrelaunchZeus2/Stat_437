@@ -106,9 +106,9 @@ set.seed(123)
 fiftygenes = sample(colnames(stdgexpProj1), 50)
 fiftygeneset = stdgexpProj1[, fiftygenes]
 
-gap = clusGap(fiftygeneset, FUNcluster = kmeans, K.max = 10, B = 200, iter.max = 100)
+gap = clusGap(t(fiftygeneset), FUNcluster = kmeans, K.max = 10, B = 200, iter.max = 100)
 
-optimal_k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method = "firstSEmax")
+optimal_k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
 cat("Clusgap Computed Optimal K value:", optimal_k, "\n")
 
 k_means = kmeans(fiftygeneset, optimal_k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
@@ -179,7 +179,7 @@ twofiftygeneset = stdgexpProj1[, twofiftygenes]
 
 
 #clusGap estimate for K
-gap2 = clusGap(twofiftygeneset, FUN = kmeans, K.max = 10, B = 200, iter.max = 100)
+gap2 = clusGap(t(twofiftygeneset), FUN = kmeans, K.max = 10, B = 200, iter.max = 100)
 optimal_k_250 = maxSE(gap2$Tab[, "gap"], gap2$Tab[, "SE.sim"], method="Tibs2001SEmax", SE.factor = 1)
 print(optimal_k_250)
 
