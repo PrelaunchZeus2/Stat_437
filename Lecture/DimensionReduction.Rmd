@@ -1,0 +1,16 @@
+---
+title: "Dimension Reduction"
+author: "John Salmon"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+# Dimension Reduction
+
+Learning Submodules:
+- key linear algebra concepts
+- principlal components, curves and surfaces
+- multidimesional scaling
+- software application
+
+
