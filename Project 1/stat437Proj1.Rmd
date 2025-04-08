@@ -57,7 +57,7 @@ gene_labels = as.data.frame(read.csv('labels.csv', row.names = 1))
 
 ```{r, Task A1}
 set.seed(123)
-#filter genes who's expression are zero for at least 300 subjects (aka columns with more than 300 rows containing 0)
+#filter genes w/ expression zero for at least 300 subjects (aka columns with more than 300 rows containing 0)
 num_zeros = colSums(gene_data == 0)
 gexp2 = gene_data[, names(num_zeros[num_zeros < 300])]
 
@@ -69,11 +69,9 @@ gexp3 = gexp2 %>% select(all_of(random_columns))
 sample_indices = sample(1:dim(gexp3)[1], size = 30, replace = FALSE)
 gexpProj1 = gexp3[sample_indices,]
 gexpProj1 <- gexpProj1[order(rownames(gexpProj1)), ]
-saveRDS(gexpProj1, "RObjects/gexpProj1")
+
 labels1 = gene_labels %>% filter(rownames(gene_labels) %in% rownames(gexpProj1))
 labels1 = labels1 %>% mutate_at('Class', as.factor)
-print(gexpProj1)
-print(labels1)
 
 #scale the gene expressions
 stdgexpProj1 = scale(gexpProj1)
@@ -127,8 +125,8 @@ cat("Number of classification errors:", classification_errors, "\n")
 cat("Accuracy:", 1 - error_rate, "\n")
 
 
-plot = ggplot(vis, aes(x = gene_19110, y = gene_6280)) + xlab("Gene 19110 Expression") + ylab("Gene 6280 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
-plot
+ggplot(vis, aes(x = gene_19110, y = gene_6280)) + xlab("Gene 19110 Expression") + ylab("Gene 6280 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number")
+
 ```
 The classification results from using clusGap to estimate an optimal number of clusters is not very good. ClusGap estimated that there should be only 1 cluster based on the genes from the 30 subjects used for calculation. Since we know what the true number of cluster labels should be, this is obviously incorrect since there are 5 different labels. The k means clustering made 14 out of 30 errors while classifying and had an accuracy of 0.56% which is fairly decent. However given the context of the way this classifier is assigning observations to a single label, this accuracy will vary wildly depending on the distribution of breast cancer occurrences in the data set it is given. This is beacuse it is assigning every set of 50 gene expressions to the same cancer type: BRCA.
 
@@ -157,12 +155,10 @@ for (i in 1:n-1)
 
 K_star = which.max(delta) + 1
 
-plot2 = plot(1:n, W, type = "b", xlab = "K", ylab = "W(k)")
-plot2
+plot(1:n, W, type = "b", xlab = "K", ylab = "W(k)")
 
-cat("K* =", K_star, "\n")
-cat("ClusGap =", optimal_k, "\n")
-
+cat("ClusGap estimate", optimal_k, " clusters\n")
+cat("K* estimate: ", K_star, " clusters")
 
 k_means_star = kmeans(fiftygeneset, K_star, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
 vis$cluster = factor(k_means_star$cluster) #overwrite previous cluster labels with new labels from kmeans with kstar estimate
@@ -179,6 +175,10 @@ cat("Accuracy:", (1 - error_rate), "\n")
 ```
 Both estimates are different from each other, the ClusGap estimate suggests that 1 cluster should be used, while the K-star method predicted 2 clusters. Examining the classification results after using k_means clustering with the $K^*$ method's estimated number of clusters it is clear that while this estimate (2 labels) is closer to the truth (5 cancer types) the overall accuracy of the model has plummeted. With only 16% of the observations being classified correctly this clustering performance is not satisfactory. 
 
+The difference in the estimates likely comes from the two different processes each method is using to generate the estimate. ClusGap uses the gap statistic which compares the total within-cluster variation for different values of K, it searches for the $k$ value where the observed clustering is most distinct from random noise. The $K*$ method looks at the total within-cluster sum of squares as the value of $k$ increases. Then it identifies the point at which the rate of improvement no longer increases, suggesting that increasing the value of k gives diminishing returns. Examining the plot of $w(k) \text{ vs. } k$ it appears that the curve begins to flatten out around the k = 2 value. These two methods operate on different assumptions as ClusGap assumes that a uniform distribution is the base line, so if the data is similar to noise it may just assume 1 cluster is fine. While the $K^*$ method just observes changes in the sum of squares.
+
+Both estimates are inaccurate compared to the truth because its possible the gene data set either does not have clear cluster boundaries for each cancer type, or including 50 genes invokes the curse of dimensionality where the distance between two individual points become much less informative.
+
 
 (**Part 3 of of Task A2**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the analysis in **Part 1** and **Part 2**. Report your findings, compare your findings with those from **Part 1** and **Part 2**; if there are differences between these findings, explain why. Regard using more genes as using more features, does using more features necessarily give more accurate clustering or classification results? 
 
@@ -187,8 +187,78 @@ set.seed(123)
 twofiftygenes = sample(colnames(stdgexpProj1), 250)
 twofiftygeneset = stdgexpProj1[, twofiftygenes]
 
+#Use Gap Stat to estimate clusters
+gap250 = clusGap(twofiftygeneset, FUNcluster = kmeans, K.max = 10, B = 200, iter.max = 100)
+optimal_k = maxSE(gap$Tab[, "gap"], gap$Tab[, "SE.sim"], method="Tibs2001SEmax")
+cat("Clusgap Computed Optimal K value:", optimal_k, "\n")
+
+k_means = kmeans(twofiftygeneset, optimal_k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
+
+vis = data.frame(twofiftygeneset)
+vis$Type = labels1 %>% filter(rownames(labels1) %in% rownames(twofiftygeneset)) %>% pull(Class)
+vis$cluster = factor(k_means$cluster)
+
+classification_table = table(vis$Type, vis$cluster)
+print(classification_table)
+
+correct_classifications = sum(diag(classification_table))
+total_classifications = sum(classification_table)
+classification_errors = total_classifications - correct_classifications
+error_rate = classification_errors / total_classifications
+
+cat("Number of classification errors:", classification_errors, "\n")
+cat("Accuracy:", 1 - error_rate, "\n")
+
+ggplot(vis, aes(x = gene_10523, y = gene_11438)) + xlab("Gene 10523 Expression") + ylab("Gene 11438 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using clusGap to estimate cluster number for 250 genes")
 ```
-Despite increasing the number of genes, there is not really a difference between the two clustering problems. Using clusGap to estimate a good k value to use still tells us to use the value 1, while using the k* method tells us to use a value of 2. Since we know the true clustering labels, we know that these are not the correct values of k as there are 5 levels in labels1. In this application, providing the clustering algorithms with more features did not improve the quality or accuracy of our results. 
+Increasing the number of genes in the data set does not appear to have an effect on the results if the Gap Statistic is used to estimate the optimal number of clusters. The estimated optimal value for K still remains as 1 and the accuracy and confusion matrix show essentially no change in the results of the classification task. This is likely because Gap Statistic is comparing the clustering results to typical noise, and introducing more features could potentially add more noise to the data. Additionally the curse of dimensionality is further amplified as there are an extra 200 dimensions with distance values separating the points.
+
+```{r, k* with 250 genes}
+# Use K* method to estimate optimal number of clusters
+set.seed(123)
+n = 10
+W = numeric(n)
+
+for (k in 1:n){
+  km = kmeans(twofiftygeneset, k, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
+  W[k] = km$tot.withinss
+}
+
+delta = numeric(n-1)
+for (i in 1:n-1)
+  delta[i] = W[i] - W[i + 1]
+
+K_star = which.max(delta) + 1
+
+plot(1:n, W, type = "b", xlab = "K", ylab = "W(k)")
+
+cat("K* estimate: ", K_star, " clusters")
+
+k_means_star = kmeans(twofiftygeneset, K_star, iter.max = 100, nstart = 25, algorithm = c("Hartigan-Wong"))
+
+vis = data.frame(twofiftygeneset)
+vis$Type = labels1 %>% filter(rownames(labels1) %in% rownames(twofiftygeneset)) %>% pull(Class)
+vis$cluster = factor(k_means_star$cluster) #overwrite previous cluster labels with new labels from kmeans with kstar estimate
+
+classification_table = table(vis$Type, vis$cluster)
+print(classification_table)
+
+correct_classifications = sum(diag(classification_table))
+total_classifications = sum(classification_table)
+classification_errors = total_classifications - correct_classifications
+error_rate = classification_errors / total_classifications
+
+cat("Number of classification errors:", classification_errors, "\n")
+cat("Accuracy:", (1 - error_rate), "\n")
+
+ggplot(vis, aes(x = gene_10523, y = gene_11438)) + xlab("Gene 10523 Expression") + ylab("Gene 11438 Expression") + theme_bw() + geom_point(aes(shape = Type, color = cluster)) + ggtitle("Clustering results using K* to estimate cluster number for 250 genes")
+```
+Once again, adding extra factors to cluster with does not appear to have an effect on the estimation of the optimal K value for clustering using the k* method. Much like the Clusgap estimate, it still returned the same value for $k$ to use, suggesting 2 clusters would be the best. Similarly to implimenting ClusGap there was also no change in clustering accuracy for the attempt as the confusion matrix and accuracy suggest no change.
+
+In this case introducing more factors did not have any remarkable changes on the performance of the clustering task. However, this may not be the case for applications in other projects. Adding more features can have an impact on the performance of a clustering task because it is introducing extra information for the clustering algorithm to use. If the information is meaningful it can improve clustering results, if the information is misleading or contradictory it can have no impact or a negative impact on the clustering. Because of the curse of dimesionality adding more features can reduce the information contained in the distance between points. The flip side is the blessing of dimensionality where if the clustering structures are well separated, adding more features can emphasisze the distinctness of the cluster structures.
+
+Although I have limited expertise in genetics, I think it is a fair to make an educated guess and say that for this data set in particular there is not a very clear structure for each of the cancer type classes. This means that regardless of how much information is used during the clustering process, the results will remain fairly poor because there is no clustering structure for the methods to interpret. 
+ 
 
 
 
@@ -211,19 +281,19 @@ hc_complete = hclust(D, method = "complete")
 cutheight = hc_average$height[length(hc_average$height)-4]
 ave_dendro_data = dendro_data_k(hc_average, 5)
 
-average_linkage_plot = plot_ggdendro(ave_dendro_data, direction = "tb", heightReferece = cutheight, expand.y = 0.3) + ggtitle("Clustering with Average Linkage")
-single_linkage_plot = ggdendrogram(hc_single) + ggtitle("Hierarchical Clustering with Single Linkage")
-complete_linkage_plot = ggdendrogram(hc_complete) + ggtitle("HC with complete linkage")
-
-average_linkage_plot
-single_linkage_plot
-complete_linkage_plot
-
+plot_ggdendro(ave_dendro_data, direction = "tb", heightReferece = cutheight, expand.y = 0.3) + ggtitle("Clustering with Average Linkage")
+ggdendrogram(hc_single) + ggtitle("Hierarchical Clustering with Single Linkage")
+ggdendrogram(hc_complete) + ggtitle("HC with complete linkage")
 
 table = table(ave_dendro_data$labels$label, ave_dendro_data$labels$clust)
-
+correct_classifications = sum(diag(table))
+total_classifications = sum(table)
+classification_errors = total_classifications - correct_classifications
+error_rate = classification_errors / total_classifications
+print(table)
+cat("HC Clustering Accuracy:", 1 - error_rate, "%")
 ```
-Examining the dendrogram created for Hierarchical Clustering using average linkage, we can compare the color of the generated clusters with the true labels which are listed on the bottom. With this comparison in mind, it is fair to say this clustering based on 250 unique genes is not very accurate or conclusive. There are many mismatched colors and labels. Additionally 3 of the estimated clusters light blue, green, and pink all contain 3 or fewer observations yet contain labels that are seen in other clusters. Examining the dendrogram from a human perspective, there does not appear to be a clear pattern between the color (HC Predicted Label) and the true cancer class listed at the bottom.  
+Examining the dendrogram created for Hierarchical Clustering using average linkage, we can compare the color of the generated clusters with the true labels which are listed on the bottom. With this comparison in mind, it is fair to say this clustering based on 250 unique genes is not very accurate or conclusive. There are many mismatched colors and labels. Additionally 3 of the estimated clusters light blue, green, and pink all contain 3 or fewer observations yet contain labels that are seen in other clusters. Examining the dendrogram from a human perspective, there does not appear to be a clear pattern between the color (HC Predicted Label) and the true cancer class listed at the bottom. Examining the HC clustering accuracy  
 
 
 # Task B. Classification
