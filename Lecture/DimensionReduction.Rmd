@@ -7,10 +7,27 @@ output: pdf_document
 
 # Dimension Reduction
 
-Learning Submodules:
+#### Learning Sub-modules:
 - key linear algebra concepts
-- principlal components, curves and surfaces
-- multidimesional scaling
+- principle components, curves and surfaces
+- multidimensional scaling
 - software application
 
+
+### Linear Algebra Review
+
+Linear Space
+if a linear space $V$ has dimension $s$, then any set of $s$ linearly independent vectors of $V$ is a basis for $V$
+
+A vector with length 1 is called the unit vector.
+Unit vectors only care about angle not distance.
+Orthogonality is achieved when the product of two vectors is 0, this means they are perpendicular.
+Canonical Basis are orthogonal unit vectors which form a basis for a linear space.
+its also called the orthonormal basis since they are unit vectors with length 1.
+
+Given a number of vectors, the linear span is the linear subspace that contains all linear combinations of the vectors.
+if two vectors are linearly independent then they will span a parallelogram with a non-zero area.
+Or the determinant of the matrix is not zero. (this is calculating the area/surface area/volume of the parallelogram using sine of the vectors.)
+
+matrix and linear mappings are equivalent
 
