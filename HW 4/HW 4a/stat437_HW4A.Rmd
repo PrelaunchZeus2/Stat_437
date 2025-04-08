@@ -1,7 +1,7 @@
 ---
 title: "Stat 437 HW4A"
 author: 
-     - Your Name (Your student ID)
+     - John Salmon (011745357)
 header-includes:
    - \usepackage{bbm}
    - \usepackage{amssymb}
@@ -69,21 +69,93 @@ It is absolutely not OK to just submit your codes only. This will result in a co
 
 (8.1) What is the main cause of the message "Warning in `lda.default`(x, grouping, ...): variables are collinear"? What is the main cause of the message "Error in `qda.default`(x, grouping, ...) : some group is too small for 'qda'"? 
 
+- The variables are colinear message is shown when one or more variable in the dataset form linear combinations of others, this results in a covariance matrix that in not invertible which the LDA calculation relies on to calculate the discriminant function. This introduces instability to the calculations where it becomes overly sensitive to small adjustments
+
+- The too small for qda message means that the groups in the predicted (response) variable has too few observations. Because QDA relies on estimating separate covariance matricies for each group there need to be a sufficient number of observations relative to the number of predictors to generate accurate estimates. If the groups are too small the estimations can fail or become unstable possibly resulting in inaccuracy
+
 (8.2) Provide details on the `list` that `predict{MASS}` returns.
 
+- For the predict.lda() method, the return of the method is a list with three components: Class, posterior, and x. The class specifies the predicted class as a factor, posterior gives the posterior probabilities for the classes, and x gives the scores of the test cases.
+- For predict.qda() the list only contains the posterior and class components which are the same as lda. The x component is omitted.
+
 (8.3) The arguments `gamma` and `lambda` of `rda{klaR}` are usually determined by cross-validation. Can they be set manually?
+
+- Both the lambda and gamma value can be manually set, using the regularization parameter. However, I'm not sure why you would do that because with out cross validation its not clear what the values to set them to should be.
 
 
 \noindent
 9. We will use the human cancer microarray data that were discussed in the lectures and are provided by the R library `ElemStatLearn` (available at https://cran.r-project.org/src/contrib/Archive/ElemStatLearn/). Pick 3 cancer types "MELANOMA", "OVARIAN" and "RENAL", and randomly select the same set of $60$ genes for each cancer type. Please use `set.seed(123)` for the whole of this exercise. Your analysis will be based on observations for these genes and cancer types.
 
+```{r get data, echo=FALSE}
+library(ElemStatLearn)
+
+data(nci)
+n = dim(nci)[2]
+p = dim(nci)[1]
+
+set.seed(123)
+random_selection = sample(1:p, size = 60, replace = FALSE)
+cancer_type_check = colnames(nci) %in% c("MELANOMA", "OVARIAN", "RENAL")
+cancer_selection = which(cancer_type_check == TRUE)
+nci1 = nci[random_selection, cancer_selection]
+colnames(nci1) = colnames(nci)[cancer_selection]
+
+cancer = data.frame(t(nci1))
+cancer$Type = colnames(nci1)
+rownames(cancer) = NULL
+table(cancer$Type)
+```
+
 9.1) Pick 2 features and visualize the observations using the 2 features. Do you think it is hard to classify the observations based on the amount of overlap among the 3 neighborhoods of observations in each of the 3 classes? Here "a neighborhood of observations in a class" is a "open disk that contains the observations in the class".
+
+```{r, 9_1}
+library(ggplot2)
+ggplot(data = cancer, aes(x = X3, y = X14, colour = Type)) + geom_point()
+```
+Based on this plot, I would not say it is difficult to classify the observations optically. Each color represents a cancer type and the different colored dots are dispersed pretty randomly and there arent clear neighborhoods of colored points. Other than the random cluster of red (melonoma) points that tend to group towards the top right.
 
 
 9.2) Apply LDA and report the classwise error rate for each cancer type.
+```{r, 9_2}
+library(MASS)
+lda.fit = lda(Type~., data = cancer)
+lda.predictions = predict(lda.fit, cancer)
+true_cancer_types = cancer$Type
+predicted_cancer_type = lda.predictions$class
 
+t = table(predicted_cancer_type, true_cancer_types)
+print(t)
+cat("Total Accuracy:", (sum(diag(t)) / sum(t))* 100, '%')
+```
 
 9.3) Use the library `klaR`, and apply regularized discriminant analysis (RDA) by setting the arguments `gamma` and `lambda` of `rda{klaR}` manually so that the resulting classwise error rate for each cancer type is zero.
+```{r, 9_3}
+library(klaR)
 
 
+
+rda.fit = rda(Type~., data = cancer, gamma = 0.05, lambda = 0.23)
+rda.pred = predict(rda.fit, cancer)
+t = table(rda.pred$class, cancer$Type)
+print(t)
+cat("Total Accuracy:", (sum(diag(t)) / sum(t))* 100, '%')
+```
 9.4) Obtain the estimated covariance matrices from the RDA and visualize them using the same strategy in Example 3 in "LectureNotes5c_notes.pdf". What can you say about the degree of dependence among these genes for each of the three cancer types? (Hint and caution: the class labels "MELANOMA", "OVARIAN" and "RENAL" will be ordered alphabetically by R. So, you need to keep track on which estimated covariance matrix is for which class. Otherwise, you will get wrong visualization.)
+```{r, 9_4}
+library(reshape2)
+hatSigma1 = rda.fit$covariances[,,1]
+hatSigma2 = rda.fit$covariances[,,2]
+hatSigma3 = rda.fit$covariances[,,3]
+
+m_hs1 = melt(hatSigma1)
+m_hs2 = melt(hatSigma2)
+m_hs3 = melt(hatSigma3)
+All = rbind(m_hs1, m_hs2, m_hs3)
+All$Cancer = rep(c("Melanoma", "Ovarian", "Renal"))
+All$Cancer = factor(All$Cancer)
+
+cov_plot = ggplot(data = All, aes(x=Var1, y=Var2, fill = value)) + geom_tile() + scale_fill_gradient2(low = "red", high = "blue") + facet_grid(~Cancer) + ggtitle("Estimated Covariance Matrices for Each Cancer Type")
+
+cov_plot
+```
+It is somewhat difficult to see because of the clutter, but overall I would say there is less dependence among genes for Ovarian cancer than the other two. Renal has some color added along the right most columns and melanoma has more prominant "+" shaped color suggesting there is more dependence among that cancer type as well. 
