@@ -265,7 +265,7 @@ Although I have limited expertise in genetics, I think it is a fair to make an e
 (**Task A3**) Randomly pick 250 genes and their expressions from "stdgexpProj1", and for these expressions, do the following: respectively apply hierarchical clustering with average linkage, single linkage, and complete linkage to cluster subjects into groups, and create a dendrogram. For the dendrogram obtained from average linkage, find the height at which cutting the dendrogram gives the same number of groups in "labels1", and comment on the clustering results obtained at this height by comparing them to the truth contained in "labels1".
 ```{r, task A3}
 library(ggdendro)
-source("Plotggdendro.r") #called to create the dendrogram with a line at the cut height
+source("Plotggdendro.r") #Hope its ok to resuse this, I thought it was much easier to use in HW3 than the regular ggdendro function.
 set.seed(123)
 twofiftygenes_h = sample(colnames(stdgexpProj1), 250)
 twofiftygeneset_h = stdgexpProj1[, twofiftygenes_h]
