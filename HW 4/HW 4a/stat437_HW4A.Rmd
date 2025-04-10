@@ -39,18 +39,70 @@ It is absolutely not OK to just submit your codes only. This will result in a co
 # Conceptual exercises: III (Discriminant analysis)
 
 \noindent
-3. Exercise 2 of Section 4.7 of the Text, which starts with "It was stated in the text that classifying an observation to the class for which (4.12) is largest is equivalent to classifying an observation to the class for which (4.13) is largest. Prove that this is the case." (Helpful information on how to prove this is contained in the lecture video on LDA and "LectureNotes5b_notes.pdf".)  
+3. Exercise 2 of Section 4.7 of the Text, which starts with "It was stated in the text that classifying an observation to the class for which (4.12) is largest is equivalent to classifying an observation to the class for which (4.13) is largest. Prove that this is the case." (Helpful information on how to prove this is contained in the lecture video on LDA and "LectureNotes5b_notes.pdf".)
+
+Equation 4.12: $p+k(X) = \frac{\pi_k\frac{1}{\sqrt{2\pi\sigma}}exp(-\frac{1}{2\sigma^2}(x-\mu_k)^2)}{\sum^{K}_{l=1} \pi_l \frac{1}{2\pi\sigma}exp(-\frac{1}{2\sigma^2}(x-\mu_l)^2)}$
+
+Start by taking the numerator of 4.12 because the class that maximizes $p_k(x)$ is the class that maximizes the numerator: $\pi_k * exp(-1\frac{1}{2\sigma^2}(x-\mu_k)^2)$
+
+Next take the log to simplify the exponential function: $\pi_k * exp(-1\frac{1}{2\sigma^2}(x-\mu_k)^2) =  log(\pi_k) - \frac{1}{2\sigma^2}(x-\mu_k)^2$
+
+Expand the quadratic term: $(x - \mu_k)^2 = x^2 - 2x\mu_k + \mu^2_k$
+
+Put together we have $log(\pi_k) - \frac{1}{2\sigma^2}(x^2 - 2x\mu_k + \mu^2_k) = log(\pi_k) - \frac{x^2}{2\sigma^2}+\frac{x\mu_k}{\sigma^2}-\frac{\mu^2_k}{2\sigma^2}$
+
+The term $\frac{x^2}{2\sigma^2}$ does not depend on k so it is a constant term that can be dropped. Doing so leaves us with: $log(\pi_k) + \frac{x\mu_k}{\sigma^2}-\frac{\mu^2_k}{2\sigma^2}$ with some re-arrangement we get...:
+
+Equation 4.13: $\delta_k(x) = x * \frac{\mu_k}{\sigma^2} - \frac{\mu^2_k}{2\sigma^2} + log(\pi_k)$
 
 \noindent
 4. Exercise 3 of Section 4.7 of the Text, which starts with "This problem relates to the QDA model, in which the observations within each class are drawn from a normal distribution with a class specific mean vector and a class specific covariance matrix. We consider the simple case where p = 1; i.e. there is only one feature." (Helpful information on how to prove this is contained in the lecture video on QDA and "LectureNotes5b_notes.pdf".) 
 
+The density of an observation from the kth class drawn from a 1D normal distribution is 
+
+$f_k(x) = \frac{1}{\sqrt{2\pi\sigma^2_k}}exp(-\frac{(x-\mu_k)^2}{2\sigma^2_k})$ each class has a prior probability of $\pi_k$
+
+The Bayes classifier assigns x to the class that maximizes the product $\pi_kf_k(x) = \pi_k * \frac{1}{\sqrt{2\pi\sigma^2_k}}exp(-\frac{(x-\mu_k)^2}{2\sigma^2_k})$
+
+taking the log to simplify the exp(): $log(\pi_kf_k(x)) = log(\pi_k)-\frac{1}{2}log(2\pi\sigma^2_k)-\frac{(x-\mu_k)^2}{2\sigma^2_k}$
+
+$log(2\pi)$ is a constant so it can be dropped since it doesn't on k: $log(pi_k) - \frac{1}{2}log(\sigma^2_k)-\frac{(x-\mu_k)^2}{2\sigma^2_k}$
+
+expand the squared term: $(x-\mu_k)^2 = x^2 - 2x\mu_k + \mu^2_k$ so now its this: $log(\pi_k) - \frac{1}{2}log(\sigma^2_k) - \frac{1}{2\sigma^2_k}(x^2 - 2x\mu_k + \mu^2_k)$
+
+distribute:
+$\delta_k(x) = log(\pi_k)-\frac{1}{2}log(\sigma^2_k)-\frac{x^2}{2\sigma^2_k}+\frac{x\mu_k}{\sigma^2_k}-\frac{\mu^2_k}{2\sigma^2_k}$
+
+When comparing between two classes to decide which gives the higher discriminant score, the decision rules says we should pick the class that maximizes $\delta_k(x)$. The coefficient in front of the $x^2$ term changes for the different classes and the decision boundary equations is obtained by setting the discriminant functions for two classes equal to each other: $\delta_k(x)=\delta_l()x$
+
+This gives a quadratic equation because of the differing $x^2$ coefficients making the decision surface quadratic. The discriminant functions involve quadratic terms, so the resulting bayes classifier under the QDA model is not linear. Hence the name Quadratic Discriminant Analysis.
+
+
 \noindent
 5. Exercise 5 of Section 4.7 of the Text, which starts with "We now examine the differences between LDA and QDA." (Hint: for this question, you may also use information from Figures 4.9, 4.10 and 4.11 in the Text.)
+
+-(a) If the Bayes decision boundary is linear we can expect that the QDA model may have slightly better (lower) training error because it has slightly more flexible model parameters that may allow it to overfit to the training set. However in the test set, with unseen data the LDA model should perform best because of the correct match of linear decision boundary and the lower variance because of its fewer parameters to estimate compared to QDA.
+
+-(b) If the Bayes decision boundary is non-linear we can expect similar results. QDA will likely fit best on the training set performance because it estimates a separate matrix for each class allowing it to capture the non-linear decision boundary in the training set. In the test set LDA will have a higher bias but lower variance, because QDA is flexible it can capture the non-linear boundary but may have extra variance if the training set did not have many observations.
+
+-(c)In general as the sample size increases the test prediction accuracy of QDA should improve compared to LDA. This is because QDA relies on estimation and more data allows for better estimates of predictions. Additionally, with smaller sample sizes QDA has to estimate more parameters which can lead to problems with over fitting.
 
 \noindent
 6. Let $Y$ be the random variable for the class label of a random vector $X \in \mathbb{R}^p$ (where $p$ is the number of features), such that $Y \in \mathcal{G}=\{1,\ldots, K\}$ and $\Pr(Y=k)=\pi_k$ for Class $k$ with $k \in \mathcal{G}$, where $K \ge 2$ is the number of classes. Consider the Gaussian mixture model such that the conditional density of $X$ when it comes from Class $k$ is $f_k(x) \sim \text{Gaussian}(\mu_k,\Sigma_k)$. Given the training set $\mathcal{T}$ of $n$ observations $(x_{1},y_{1}),\ldots,(x_{n},y_{n})$ on $(X,Y)$, where $y_i$ is the class label of observation $x_i$, do the following:
 
 6.1) Provide the MLEs of $\pi_k$, $\mu_k$ and $\Sigma_k$ for each $k \in \mathcal{G}$ respectively for the case where all $\Sigma_k$'s are equal and for the case where not all $\Sigma_k$'s are equal. When $p >n$, is the MLE of $\Sigma_k$ still accurate? If not, recommend a different estimator for estimating $\Sigma_k$ and provide details on this estimator.
+
+When all $\Sigma_k$'s are equal:
+- $\hat{\pi_k} = \frac{n_k}{n}$
+- $\hat{\mu_k} = \frac{1}{n_k}\sum_{y_i=k}x_i$
+- $\hat{\Sigma_k} = \frac{1}{n}\sum^K_{y_i=k}(x_i-\hat{\mu_k})(x_i-\hat{\mu_k})^T$
+
+When all $\Sigma_k$'s different:
+- $\hat{\pi_k} = \frac{n_k}{n}$
+- $\hat{\mu_k} = \frac{1}{n_k}\sum_{y_i=k}x_i$
+- $\hat{\Sigma_k} = \frac{1}{n_k}\sum^K_{y_i=k}(x_i-\hat{\mu_k})(x_i-\hat{\mu_k})^T$
+
+For cases when $p > n$ the MLE of $\Sigma_k$ will be unstable because the sample covariance matrix becomes singular and cannot be inverted. To address this I would suggest using RDA which uses $\lambda \text{and} \gamma$ to control the regularization of the co-variances in LDA and QDA. 
 
 6.2) Assume $p=2$ and $K=2$ and $k=1$. For the density $f_k(x) \sim \text{Gaussian}(\mu_k,\Sigma_k)$, what shape do its contours take, and how does $\Sigma_k$ control the shape of these contours? How do you check if the conditional density of $X$ given that it comes from Class $k$ is Gaussian?
 
