@@ -106,11 +106,34 @@ For cases when $p > n$ the MLE of $\Sigma_k$ will be unstable because the sample
 
 6.2) Assume $p=2$ and $K=2$ and $k=1$. For the density $f_k(x) \sim \text{Gaussian}(\mu_k,\Sigma_k)$, what shape do its contours take, and how does $\Sigma_k$ control the shape of these contours? How do you check if the conditional density of $X$ given that it comes from Class $k$ is Gaussian?
 
+The contours in this case will be ellipses and their shape size and orientation are determined by the covariance matrix. To if the conditional density of X given class k, we can use the visual methods that we went over during lecture, or I think there may be some statistical tests (Shapiro-Wilk?) that could tell you. Additionally tou can use MLE to estimate the parameters and look at how it fits.
+
 6.3) Is it true that discriminant analysis will perform badly if the Gaussian assumption is violated? (Hint: for this question, you may also use the information provided by Figures 4.10 and 4.11 of the Text.) Let $X=(X_1,\ldots,X_p)^P$, i.e., $X_1$ up to $X_p$ are the feature variables. Can discriminant analysis be applied to observations of $X$ when some of $X_j,j=1\ldots,p$ is a discrete variable (such as a categorical variable)? Explain your answer.
+
+When the Gaussian assumption is violated, there is not a guarantee that the discriminant model will perform poorly, however it is pretty likely that it will. The model will likely struggle to capture the true distribution of the data leading to incorrect classification boundaries. Expecially the LDA model as it is more rigid in its assumption that the covairance matricies are the same across classes.
+
+Discriminant Analysis cannot directly handle categorical features. The data it takes in needs to be continuous because the decision boundary is derived by calculating the likelihood of a data point belonging to a particular class. The categorical likelihood woul d be estimated by counting the frequency of each category so it doesn't fit well with the Gaussian assumption.
 
 6.4) What is a ROC curve, and what is AUC? How is AUC used to gauge the performance of a classifier? If you apply the same classifier, say, LDA or QDA under the same Gaussian mixture model, to two data sets that are independently generated from the same data generating process, i.e., that are independently generated from $(X,Y)$ for classification problems, and obtain two ROC curves, would the two ROC curves be quite different? Explain your answer. When there are 3 or more classes, are the codes provided in the lecture notes able to obtain ROC curves and their AUC's for LDA and QDA?
 
+The ROC curve shows the ability of a classification model to distinguish between classes at different thresholds. The two axis represent Sensitivity or true positive rate against the specificity or false positive rate. As the threshold level changes the balance between these two changes and is shown by the curve. AUC is the area under the curve which summarizies the overall performance of the classifier by providing a value between 0 and 1. 0.5 would be the typical value of a classifier that just randomly picks classes to assign to. 1 would be a perfect classifier and 0 would be a bad classifier.  
+
+If you were to create an ROC curve for two synthetically generated datasets from the same distribution, you would likely get 2 curves that are very similar but may or may not be identical. This is because both datasets may have some sampling variability which leads to differences in the points, and that the decision boundaries that are created by looking at the training data may be slightly different because of randomness in data sampling. 
+
+I suspect that the code provided in the lecture notes wouldn't be sufficient to generate ROC curves for 3 or more classes. When there are more than 3 classes the thresholds become more complicated and I'm not sure how you would display that with a ROC curve.
+
 6.5) Describe the key similarities and differences, respectively, between LDA and logistic regression. Provide a situation where discriminant analysis can still be sensibly applied but logistic regression is not well-defined.
+
+Similarities:
+- LDA and Logistic Regression are both supervised learning techniques for classification tasks. 
+- Both use a linear decision boundary.
+- Both methods model the probability of a data point belonging to a class
+
+Differences: 
+- LDA assumes the features are normally distributed, Logistic Regression does not care about the distribution of the data.
+- LDA estimates the class conditional probabilities and uses Bayes rule to compute the posterior probability, logistic regression models the probability of a class with the sigmoid logistic function.
+
+A situation where LDA would work but logistic regression may not, is in a situation where the data set is high dimensional but the number of observations is low. This could be the case in research of a rare genetic disease where there are many gene expressions but not that many people have the disease with the "correct" gene expressions to study. In this case LDA can be applied because it just estimates the means and covariance matrices of the classes (has disease vs doesn't have disease) even with a small sample set, it can still work. But the logistic regression model may struggle to estimate the coefficients for its logistic function. It won't be able to find a stable solution because it will over fit and struggle with the multicolinearity of the data.
 
 
 
